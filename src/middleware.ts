@@ -1,6 +1,8 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
+const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
+
 const isCoachRoute = createRouteMatcher([
   "/dashboard(.*)",
   "/sessions(.*)",
@@ -33,7 +35,9 @@ const isPublicRoute = createRouteMatcher([
 export default clerkMiddleware(async (auth, req) => {
   if (isPublicRoute(req)) return NextResponse.next();
 
-  if (isCoachRoute(req) || isUserRoute(req)) {
+  // Admin, coach et user routes nécessitent une auth Clerk
+  // La vérification du rôle admin se fait dans le layout admin (accès DB)
+  if (isAdminRoute(req) || isCoachRoute(req) || isUserRoute(req)) {
     const { userId } = await auth();
     if (!userId) {
       const signInUrl = new URL("/sign-in", req.url);

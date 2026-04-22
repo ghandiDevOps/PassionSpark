@@ -103,7 +103,9 @@ model User {
   avatarUrl      String?
   role           UserRole  @default(participant)
   emailVerified  Boolean   @default(false)
-  deletedAt      DateTime? // Soft delete
+  bannedAt       DateTime? // Admin ban (distinct du soft delete RGPD)
+  bannedReason   String?
+  deletedAt      DateTime? // Soft delete RGPD
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
@@ -112,6 +114,7 @@ model User {
   bookings       Booking[]
   reviews        Review[]
   notifications  Notification[]
+  auditLogs      AuditLog[]
 
   @@map("users")
 }
@@ -288,6 +291,24 @@ model Payout {
 
   @@index([coachId])
   @@map("payouts")
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  adminId     String
+  action      String   // BAN_USER, UNBAN_USER, CHANGE_ROLE, CANCEL_SESSION, UNPUBLISH_SESSION, REFUND_BOOKING
+  targetType  String   // user | session | booking
+  targetId    String
+  metadata    Json?    // { reason, oldValue, newValue, ... }
+  ip          String?
+  createdAt   DateTime @default(now())
+
+  admin User @relation(fields: [adminId], references: [id])
+
+  @@index([adminId])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+  @@map("audit_logs")
 }
 
 model Notification {
