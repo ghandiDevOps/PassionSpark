@@ -274,7 +274,7 @@ export default function V2Page() {
               transition={{ duration: 0.6, ease: "easeOut" }}
               className="mb-8"
             >
-              <Image src="/logo.svg" alt="PassionSpark" width={48} height={48} className="brightness-0 invert" />
+              <Image src="/logos/icon-blanc.svg" alt="PassionSpark" width={48} height={48} />
             </motion.div>
 
             {/* Eyebrow */}
@@ -665,7 +665,7 @@ export default function V2Page() {
         ══════════════════════════════════════════════ */}
         <footer className="py-8 px-6 flex items-center justify-between border-t border-[#111]">
           <div className="flex items-center gap-3">
-            <Image src="/logo.svg" alt="PassionSpark" width={20} height={20} className="brightness-0 invert opacity-40" />
+            <Image src="/logos/icon-blanc.svg" alt="PassionSpark" width={20} height={20} className="opacity-30" />
             <span className="font-display-md text-[10px] tracking-[0.2em] text-[#333]">PASSIONSPARK</span>
           </div>
           <div className="flex gap-6">
