@@ -11,6 +11,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { useTranslation } from "@/i18n/useTranslation";
 import { DOMAIN_IDS, type DomainId } from "@/i18n/translations";
+import { SplineSection } from "@/components/ui/spline-section";
 
 // ─── Global styles ────────────────────────────────────────────────────────────
 
@@ -296,6 +297,11 @@ function SiteV2({
           secondary: { text: t("hero.cta_secondary"), onClick: () => window.location.href = "/onboarding" },
         }}
       />
+
+      {/* ══════════════════════════════════════════════
+          SPLINE — 3D interactif
+      ══════════════════════════════════════════════ */}
+      <SplineSection />
 
       {/* ══════════════════════════════════════════════
           1. CONCEPT — Editorial Magazine Layout
