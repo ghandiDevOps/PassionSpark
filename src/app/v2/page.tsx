@@ -119,19 +119,20 @@ function PassionSelector({ onSelect }: { onSelect: (id: DomainId) => void }) {
   }));
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-black">
-      {/* WebGL shader canvas */}
+    <div className="relative min-h-screen flex flex-col items-center justify-center bg-black">
+      {/* WebGL shader canvas — fixed, toujours en fond */}
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 w-full h-full touch-none"
-        style={{ background: "black" }}
+        className="fixed inset-0 w-full h-full touch-none"
+        style={{ background: "black", zIndex: 0 }}
       />
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black/45 z-[1]" />
+      <div className="fixed inset-0 bg-black/50" style={{ zIndex: 1 }} />
 
       {/* Content */}
       <motion.div
-        className="relative z-10 flex flex-col items-center text-center px-6 w-full"
+        className="relative flex flex-col items-center text-center px-6 w-full"
+        style={{ zIndex: 2 }}
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
@@ -204,12 +205,12 @@ function SiteV2({
   const currentEmoji = SELECTOR_ACTIONS.find((a) => a.id === domain)?.emoji ?? "✦";
 
   return (
-    <div className="bg-white dark:bg-[#0a0a0a] text-[#0a0a0a] dark:text-white overflow-x-hidden">
+    <div className="text-[#0a0a0a] dark:text-white overflow-x-hidden" style={{ position: "relative", zIndex: 1 }}>
 
       {/* ══════════════════════════════════════════════
           HEADER — sticky
       ══════════════════════════════════════════════ */}
-      <header className="sticky top-0 z-50 flex items-center justify-between px-6 h-14 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-md border-b border-[#E5E5E5] dark:border-[#1a1a1a]">
+      <header className="sticky top-0 z-50 flex items-center justify-between px-6 h-14 bg-black/60 backdrop-blur-md border-b border-white/10" style={{ zIndex: 50 }}>
 
         {/* Left: Logo + Brand */}
         <Link href="/" className="flex items-center gap-2.5 group">
@@ -227,33 +228,26 @@ function SiteV2({
             height={20}
             className="opacity-90 group-hover:opacity-100 transition-opacity hidden dark:block"
           />
-          <span className="font-display-md text-[10px] tracking-[0.2em] text-[#0a0a0a] dark:text-white">
+          <span className="font-display-md text-[10px] tracking-[0.2em] text-white">
             PASSIONSPARK
           </span>
         </Link>
 
         {/* Center: Nav links (desktop) */}
         <nav className="hidden md:flex items-center gap-8">
-          <Link
-            href="/explore"
-            className="font-display-md text-[10px] tracking-[0.15em] text-[#888888] hover:text-[#0a0a0a] dark:hover:text-white transition-colors"
-          >
+          <Link href="/explore" className="font-display-md text-[10px] tracking-[0.15em] text-white/60 hover:text-white transition-colors">
             {t("nav.explore")}
           </Link>
-          <Link
-            href="/onboarding"
-            className="font-display-md text-[10px] tracking-[0.15em] text-[#888888] hover:text-[#0a0a0a] dark:hover:text-white transition-colors"
-          >
+          <Link href="/onboarding" className="font-display-md text-[10px] tracking-[0.15em] text-white/60 hover:text-white transition-colors">
             {t("nav.become_coach")}
           </Link>
         </nav>
 
         {/* Right: Domain badge + Language + Theme + Sign in */}
         <div className="flex items-center gap-2">
-          {/* Domain badge — clic pour reset */}
           <button
             onClick={onReset}
-            className="flex items-center gap-1.5 border border-[#FF7A00]/40 text-[#FF7A00] px-3 py-1 text-xs font-display-md tracking-[0.1em] hover:bg-[#FF7A00]/10 transition-colors"
+            className="flex items-center gap-1.5 border border-[#FF7A00]/50 text-[#FF7A00] px-3 py-1 text-xs font-display-md tracking-[0.1em] hover:bg-[#FF7A00]/10 transition-colors"
             title="Changer de domaine"
           >
             <span>{currentEmoji}</span>
@@ -263,7 +257,7 @@ function SiteV2({
           <ThemeToggle />
           <Link
             href="/sign-in"
-            className="hidden md:block font-display-md text-[10px] tracking-[0.15em] border border-[#E5E5E5] dark:border-[#2a2a2a] text-[#0a0a0a] dark:text-white px-4 py-2 hover:border-[#FF7A00]/50 hover:text-[#FF7A00] transition-colors ml-1"
+            className="hidden md:block font-display-md text-[10px] tracking-[0.15em] border border-white/20 text-white px-4 py-2 hover:border-[#FF7A00]/50 hover:text-[#FF7A00] transition-colors ml-1"
           >
             {t("nav.sign_in")}
           </Link>
@@ -289,7 +283,7 @@ function SiteV2({
       {/* ══════════════════════════════════════════════
           1. CONCEPT — Editorial Magazine Layout
       ══════════════════════════════════════════════ */}
-      <section className="py-24 sm:py-36 px-6 max-w-6xl mx-auto">
+      <section className="py-24 sm:py-36 px-6 max-w-6xl mx-auto bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-sm">
 
         <FadeUp className="mb-16">
           <div className="flex items-center gap-4">
@@ -328,7 +322,7 @@ function SiteV2({
       {/* ══════════════════════════════════════════════
           2. DOMAINES — Animated Tabs
       ══════════════════════════════════════════════ */}
-      <section className="py-24 sm:py-36 bg-[#F8F8F8] dark:bg-[#111111] relative overflow-hidden">
+      <section className="py-24 sm:py-36 bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-sm relative overflow-hidden">
 
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
           <span className="font-display text-[20vw] text-[#0a0a0a]/[0.04] dark:text-white/[0.03] leading-none">
@@ -422,7 +416,7 @@ function SiteV2({
       {/* ══════════════════════════════════════════════
           3. SOCIAL PROOF — Dual Marquee
       ══════════════════════════════════════════════ */}
-      <section className="py-24 sm:py-36 overflow-hidden bg-white dark:bg-[#0a0a0a]">
+      <section className="py-24 sm:py-36 overflow-hidden bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-sm">
 
         <FadeUp className="px-6 mb-12 text-center">
           <p className="font-display-md text-[10px] tracking-[0.3em] text-[#888888] dark:text-[#555555] mb-3">
@@ -469,7 +463,7 @@ function SiteV2({
       ══════════════════════════════════════════════ */}
       <section className="relative overflow-hidden">
         <div className="h-px w-full flame-gradient opacity-40" />
-        <div className="bg-[#F8F8F8] dark:bg-[#111111] py-28 sm:py-40 px-6 relative">
+        <div className="bg-white/90 dark:bg-[#0a0a0a]/90 backdrop-blur-sm py-28 sm:py-40 px-6 relative">
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="w-[80vw] h-[80vw] max-w-[800px] max-h-[800px] rounded-full opacity-[0.08] dark:opacity-[0.05] blur-[100px] bg-[#FF7A00]" />
           </div>
@@ -524,7 +518,7 @@ function SiteV2({
       {/* ══════════════════════════════════════════════
           FOOTER
       ══════════════════════════════════════════════ */}
-      <footer className="py-8 px-6 flex items-center justify-between border-t border-[#E5E5E5] dark:border-[#1a1a1a]">
+      <footer className="py-8 px-6 flex items-center justify-between border-t border-white/10 bg-black/60 backdrop-blur-sm">
         <div className="flex items-center gap-3">
           <Image src="/logos/icon-flamme.svg" alt="PassionSpark" width={20} height={20} className="opacity-50 dark:hidden" />
           <Image src="/logos/icon-flamme-blanc.svg" alt="PassionSpark" width={20} height={20} className="opacity-60 hidden dark:block" />
