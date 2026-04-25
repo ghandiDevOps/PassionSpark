@@ -4,7 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
-import { useShaderBackground } from "@/components/ui/animated-shader-hero";
+import AnimatedShaderHero, { useShaderBackground } from "@/components/ui/animated-shader-hero";
 import { ActionSearchBar } from "@/components/ui/action-search-bar";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
@@ -269,6 +269,22 @@ function SiteV2({
           </Link>
         </div>
       </header>
+
+      {/* ══════════════════════════════════════════════
+          HERO — Shader + Titre domaine + CTA
+      ══════════════════════════════════════════════ */}
+      <AnimatedShaderHero
+        trustBadge={{ text: t("hero.badge") }}
+        headline={{
+          line1: domainItems[domain].headline.split("\n")[0],
+          line2: domainItems[domain].headline.split("\n").slice(1).join(" "),
+        }}
+        subtitle={t("hero.tagline_1") + " " + t("hero.tagline_2")}
+        buttons={{
+          primary: { text: t("hero.cta_primary"), onClick: () => window.location.href = "/explore" },
+          secondary: { text: t("hero.cta_secondary"), onClick: () => window.location.href = "/onboarding" },
+        }}
+      />
 
       {/* ══════════════════════════════════════════════
           1. CONCEPT — Editorial Magazine Layout
