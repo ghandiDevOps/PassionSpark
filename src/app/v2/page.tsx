@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
+import { motion as motionOne } from "motion/react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
@@ -105,6 +106,42 @@ function DomainFlame({ id }: { id: DomainId }) {
   );
 }
 
+// ─── AnimatedLogo ─────────────────────────────────────────────────────────────
+
+function AnimatedLogo({ src, size = 36, className = "mb-8" }: { src: string; size?: number; className?: string }) {
+  return (
+    <motionOne.div
+      className={className}
+      style={{ willChange: "transform" }}
+      // Entrée spring
+      initial={{ opacity: 0, scale: 0.4, rotate: -10 }}
+      animate={{
+        opacity: 1,
+        scale:  [0.4, 1.15, 0.95, 1.05, 1],
+        rotate: [-10, 6, -4, 2, 0],
+      }}
+      transition={{ duration: 0.9, ease: [0.34, 1.56, 0.64, 1] }}
+    >
+      {/* Flicker continu après l'entrée */}
+      <motionOne.div
+        animate={{
+          y:      [0, -5, -1, -7, -2, 0],
+          rotate: [0, -2, 3, -3, 1, 0],
+          scale:  [1, 1.05, 1.01, 1.08, 1.02, 1],
+        }}
+        transition={{
+          duration: 3,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: 1,
+        }}
+      >
+        <Image src={src} alt="PassionSpark" width={size} height={size} />
+      </motionOne.div>
+    </motionOne.div>
+  );
+}
+
 // ─── PassionSelector — Étape 1 ────────────────────────────────────────────────
 
 function PassionSelector({ onSelect }: { onSelect: (id: DomainId) => void }) {
@@ -137,15 +174,8 @@ function PassionSelector({ onSelect }: { onSelect: (id: DomainId) => void }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
       >
-        {/* Logo */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="mb-8"
-        >
-          <Image src="/logos/icon-blanc.svg" alt="PassionSpark" width={32} height={32} />
-        </motion.div>
+        {/* Logo animé */}
+        <AnimatedLogo src="/logos/icon-blanc.svg" size={40} />
 
         {/* Title */}
         <h1
@@ -214,20 +244,7 @@ function SiteV2({
 
         {/* Left: Logo + Brand */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <Image
-            src="/logos/icon-flamme.svg"
-            alt="PassionSpark"
-            width={20}
-            height={20}
-            className="opacity-90 group-hover:opacity-100 transition-opacity dark:hidden"
-          />
-          <Image
-            src="/logos/icon-flamme-blanc.svg"
-            alt="PassionSpark"
-            width={20}
-            height={20}
-            className="opacity-90 group-hover:opacity-100 transition-opacity hidden dark:block"
-          />
+          <AnimatedLogo src="/logos/icon-flamme-blanc.svg" size={20} className="" />
           <span className="font-display-md text-[10px] tracking-[0.2em] text-white">
             PASSIONSPARK
           </span>
