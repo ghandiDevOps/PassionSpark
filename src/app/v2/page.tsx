@@ -131,9 +131,9 @@ function AnimatedLogo({ src, size = 36, className = "mb-8" }: { src: string; siz
         }}
         transition={{
           duration: 3,
-          repeat: Infinity,
+          repeat: 0,
           ease: "easeInOut",
-          delay: 1,
+          delay: 10,
         }}
       >
         <Image src={src} alt="PassionSpark" width={size} height={size} />
