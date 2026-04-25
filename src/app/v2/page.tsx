@@ -200,8 +200,25 @@ function PassionSelector({ onSelect }: { onSelect: (id: DomainId) => void }) {
           />
         </div>
 
+        {/* CTAs */}
+        <div className="flex flex-col sm:flex-row items-center gap-3 mt-8 w-full max-w-sm sm:max-w-md">
+          <Link
+            href="/explore"
+            className="w-full sm:flex-1 text-center font-display-md text-[11px] tracking-[0.2em] px-6 py-3.5 text-black transition-opacity hover:opacity-90"
+            style={{ background: "linear-gradient(135deg, #FFB700, #FF7A00, #FF3D00)" }}
+          >
+            {locale === "fr" ? "EXPLORER LES SESSIONS" : "EXPLORE SESSIONS"}
+          </Link>
+          <Link
+            href="/onboarding"
+            className="w-full sm:flex-1 text-center font-display-md text-[11px] tracking-[0.2em] px-6 py-3.5 border border-white/25 text-white hover:border-white/50 hover:bg-white/5 transition-colors"
+          >
+            {locale === "fr" ? "DEVENIR CRÉATEUR" : "BECOME A CREATOR"}
+          </Link>
+        </div>
+
         {/* Language + Theme */}
-        <div className="flex items-center gap-3 mt-10 opacity-60 hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-3 mt-8 opacity-60 hover:opacity-100 transition-opacity">
           <LanguageSwitcher />
           <ThemeToggle />
         </div>
