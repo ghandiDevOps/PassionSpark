@@ -63,11 +63,11 @@ const DOMAIN_COLORS: Record<DomainId, string> = {
 };
 
 const SELECTOR_ACTIONS = [
-  { id: "sport"    as DomainId, emoji: "🥊", descFr: "Intensité · Performance", descEn: "Intensity · Performance" },
   { id: "music"    as DomainId, emoji: "🎸", descFr: "Créativité · Expression",  descEn: "Creativity · Expression" },
-  { id: "cuisine"  as DomainId, emoji: "🍳", descFr: "Goût · Technique",         descEn: "Taste · Technique" },
   { id: "art"      as DomainId, emoji: "🎨", descFr: "Vision · Liberté",         descEn: "Vision · Freedom" },
+  { id: "cuisine"  as DomainId, emoji: "🍳", descFr: "Goût · Technique",         descEn: "Taste · Technique" },
   { id: "wellness" as DomainId, emoji: "🧘", descFr: "Calme · Énergie",          descEn: "Calm · Energy" },
+  { id: "sport"    as DomainId, emoji: "🥊", descFr: "Intensité · Performance",  descEn: "Intensity · Performance" },
   { id: "tech"     as DomainId, emoji: "💻", descFr: "Logique · Impact",         descEn: "Logic · Impact" },
 ];
 
@@ -499,7 +499,78 @@ function SiteV2({
       </section>
 
       {/* ══════════════════════════════════════════════
-          4. CTA FINAL
+          4. CRÉATEURS
+      ══════════════════════════════════════════════ */}
+      <section className="py-24 sm:py-36 bg-[#0a0a0a]/97 backdrop-blur-sm relative overflow-hidden">
+
+        {/* Glow ambiance */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="w-[60vw] h-[60vw] max-w-[600px] rounded-full opacity-10 blur-[120px] bg-[#FF7A00]" />
+        </div>
+
+        <div className="relative z-10 px-6 max-w-6xl mx-auto">
+
+          <FadeUp className="mb-16">
+            <div className="flex items-center gap-4">
+              <div className="h-px flex-1 bg-white/10" />
+              <span className="font-display-md text-[10px] tracking-[0.3em] text-[#FF7A00]">POUR LES CRÉATEURS</span>
+              <div className="h-px flex-1 bg-white/10" />
+            </div>
+          </FadeUp>
+
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+
+            {/* Left — headline */}
+            <FadeUp>
+              <h2 className="font-display text-4xl sm:text-6xl text-white leading-[0.88] mb-6">
+                VIS DE<br />
+                <span className="flame-text">TA PASSION.</span>
+              </h2>
+              <p className="text-white/50 font-sans text-base sm:text-lg leading-relaxed max-w-md">
+                Tu maîtrises une compétence que les autres veulent apprendre ? Propose une session d'1h à 10-20 personnes. Pas de plateforme à gérer, pas d'admin — juste ton expertise.
+              </p>
+              <Link
+                href="/onboarding"
+                className="inline-flex items-center gap-2 mt-8 font-display-md text-[11px] tracking-[0.2em] text-black px-8 py-4 flame-gradient hover:opacity-90 transition-opacity"
+              >
+                DEVENIR CRÉATEUR
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </FadeUp>
+
+            {/* Right — 3 stats */}
+            <FadeUp delay={0.15}>
+              <div className="grid grid-cols-1 gap-px bg-white/10">
+                {[
+                  { pct: "70%", label: "reversés au créateur", sub: "Sur chaque session facturée" },
+                  { pct: "7%",  label: "de commission parrainage", sub: "Si tu amènes toi-même tes participants" },
+                  { pct: "13€", label: "prix plancher par participant", sub: "Accessible · Juste · Pour tout le monde" },
+                ].map(({ pct, label, sub }) => (
+                  <div key={pct} className="bg-[#0f0f0f] px-8 py-7 flex items-center gap-6 hover:bg-[#141414] transition-colors group">
+                    <span
+                      className="font-display text-5xl shrink-0 flame-text"
+                    >
+                      {pct}
+                    </span>
+                    <div>
+                      <div className="text-white font-display-md text-[12px] tracking-[0.15em] mb-1 group-hover:text-[#FF7A00] transition-colors">
+                        {label.toUpperCase()}
+                      </div>
+                      <div className="text-white/40 font-sans text-xs">{sub}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </FadeUp>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════
+          5. CTA FINAL
       ══════════════════════════════════════════════ */}
       <section className="relative overflow-hidden">
         <div className="h-px w-full flame-gradient opacity-40" />
