@@ -20,6 +20,7 @@ const isUserRoute = createRouteMatcher([
 
 const isPublicRoute = createRouteMatcher([
   "/",
+  "/v2(.*)",
   "/s/(.*)",
   "/book/(.*)",
   "/sign-in(.*)",
