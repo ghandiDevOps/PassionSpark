@@ -1,5 +1,6 @@
 ﻿import { DOMAIN_LABELS } from "@/constants";
 import type { SessionFormData } from "./types";
+import Image from "next/image";
 
 interface Props {
   data: SessionFormData;
@@ -28,9 +29,18 @@ export function StepPreview({ data }: Props) {
       {/* Card aperçu */}
       <div className="bg-[#1e1e1e] border border-[#2a2a2a] overflow-hidden mb-6">
 
-        {/* Placeholder image */}
-        <div className="h-40 bg-[#2a2a2a] flex items-center justify-center">
-          <span className="font-display text-[#333] text-sm tracking-widest">PHOTO À VENIR</span>
+        {/* Image */}
+        <div className="h-40 bg-[#2a2a2a] relative flex items-center justify-center overflow-hidden">
+          {data.coverImageUrl ? (
+            <Image 
+              src={data.coverImageUrl} 
+              alt="Preview" 
+              fill 
+              className="object-cover"
+            />
+          ) : (
+            <span className="font-display text-[#333] text-sm tracking-widest">PHOTO À VENIR</span>
+          )}
         </div>
 
         <div className="p-5">
@@ -64,7 +74,7 @@ export function StepPreview({ data }: Props) {
           {/* Prix */}
           <div className="flex items-end justify-between">
             <div>
-              <span className="font-display text-4xl text-[#FF7A00]">{formatEuros(data.priceCents)}</span>
+              <span className="font-display text-4xl text-[#FF7A00]">{formatEuros(data.priceCents)}</span>      
               <span className="font-display-md text-xs text-[#444] ml-1">/ pers.</span>
             </div>
             <span className="btn-passion text-xs px-4 py-2 min-h-0 opacity-50 cursor-not-allowed">

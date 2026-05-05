@@ -1,16 +1,19 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Link from "next/link";
 import { SessionCard, type SessionCardData } from "./session-card";
 
+const PAGE_SIZE = 12;
+
 interface ExploreClientProps {
   sessions: SessionCardData[];
-  categories: string[]; // liste unique de catégories disponibles
+  categories: string[];
 }
 
 export function ExploreClient({ sessions, categories }: ExploreClientProps) {
   const [activeFilter, setActiveFilter] = useState("Tous");
+  const [shown, setShown] = useState(PAGE_SIZE);
 
   const filters = ["Tous", ...categories];
 
@@ -21,23 +24,34 @@ export function ExploreClient({ sessions, categories }: ExploreClientProps) {
           (s) => s.category.toLowerCase() === activeFilter.toLowerCase(),
         );
 
+  const visible  = filtered.slice(0, shown);
+  const hasMore  = shown < filtered.length;
+  const remaining = filtered.length - shown;
+
+  function handleFilter(f: string) {
+    setActiveFilter(f);
+    setShown(PAGE_SIZE); // reset pagination on filter change
+  }
+
   return (
     <>
-      {/* ── Filtre catégories ── */}
-      <div className="flex gap-2 overflow-x-auto pb-3 mb-6 sm:mb-8 scrollbar-hide">
-        {filters.map((filter) => (
-          <button
-            key={filter}
-            onClick={() => setActiveFilter(filter)}
-            className={`shrink-0 font-display-md text-xs px-4 py-2 border transition-colors duration-200 whitespace-nowrap cursor-pointer ${
-              activeFilter === filter
-                ? "bg-[#FF7A00] border-[#FF7A00] text-white"
-                : "border-[#2a2a2a] text-[#555] hover:border-[#FF7A00] hover:text-[#FF7A00]"
-            }`}
-          >
-            {filter.toUpperCase()}
-          </button>
-        ))}
+      {/* ── Filtre catégories sticky ── */}
+      <div className="sticky top-14 z-30 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-3 mb-6 sm:mb-8 border-b border-[#2a2a2a] bg-[#1a1a1a]">
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide max-w-7xl">
+          {filters.map((filter) => (
+            <button
+              key={filter}
+              onClick={() => handleFilter(filter)}
+              className={`shrink-0 font-display-md text-xs px-4 py-2 border transition-colors duration-200 whitespace-nowrap cursor-pointer ${
+                activeFilter === filter
+                  ? "bg-[#FF7A00] border-[#FF7A00] text-white"
+                  : "border-[#2a2a2a] text-[#555] hover:border-[#FF7A00] hover:text-[#FF7A00]"
+              }`}
+            >
+              {filter.toUpperCase()}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* ── Compteur ── */}
@@ -57,7 +71,7 @@ export function ExploreClient({ sessions, categories }: ExploreClientProps) {
             Pas encore de sessions {activeFilter} disponibles.
           </p>
           <button
-            onClick={() => setActiveFilter("Tous")}
+            onClick={() => handleFilter("Tous")}
             className="font-display-md text-xs text-[#FF7A00] hover:text-white transition-colors"
           >
             VOIR TOUTES LES SESSIONS →
@@ -66,11 +80,26 @@ export function ExploreClient({ sessions, categories }: ExploreClientProps) {
       )}
 
       {/* ── Grille sessions ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
-        {filtered.map((s) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        {visible.map((s) => (
           <SessionCard key={s.slug} s={s} />
         ))}
       </div>
+
+      {/* ── Voir plus ── */}
+      {hasMore && (
+        <div className="flex flex-col items-center gap-2 mb-12">
+          <button
+            onClick={() => setShown((n) => n + PAGE_SIZE)}
+            className="font-display-md text-[11px] tracking-[0.2em] text-black px-10 py-4 flame-gradient hover:opacity-90 transition-opacity"
+          >
+            VOIR PLUS — {remaining} SESSION{remaining > 1 ? "S" : ""}
+          </button>
+          <p className="text-[#555] text-xs font-sans">
+            {shown} / {filtered.length} affichées
+          </p>
+        </div>
+      )}
 
       {/* ── Bannière coach ── */}
       <div className="bg-[#1e1e1e] border border-[#2a2a2a] p-6 lg:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-5">

@@ -1,5 +1,5 @@
 /**
- * PassionPlay — Screenshot Tool
+ * PassionSpark — Screenshot Tool
  * Permet à Claude de "voir" le site pour donner du feedback design
  *
  * Usage :

@@ -21,7 +21,7 @@ export default async function OgImage({ params }: Props) {
   if (!session) {
     return new ImageResponse(
       <div style={{ width: 1200, height: 630, background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <span style={{ color: "#FF7A00", fontSize: 48, fontWeight: 900 }}>PASSIONPLAY</span>
+        <span style={{ color: "#FF7A00", fontSize: 48, fontWeight: 900 }}>PASSION SPARK</span>
       </div>,
       { ...size },
     );
@@ -52,7 +52,7 @@ export default async function OgImage({ params }: Props) {
       {/* Header — logo + badge */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 40 }}>
         <span style={{ color: "#FF7A00", fontSize: 28, fontWeight: 900, letterSpacing: "-0.02em", textTransform: "uppercase" }}>
-          PASSIONPLAY
+          PASSION SPARK
         </span>
         <span style={{
           background: badgeColor + "26",

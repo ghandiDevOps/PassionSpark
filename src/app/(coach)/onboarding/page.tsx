@@ -2,183 +2,116 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 
-type Step = 1 | 2;
+type Step = 1 | 2 | 3;
 
 const DOMAINS = [
-  {
-    value: "sport",
-    label: "Sport",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <path d="M4.93 4.93 19.07 19.07"/>
-        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-        <path d="M2 12h20"/>
-      </svg>
-    ),
-  },
-  {
-    value: "music",
-    label: "Musique",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M9 18V5l12-2v13"/>
-        <circle cx="6" cy="18" r="3"/>
-        <circle cx="18" cy="16" r="3"/>
-      </svg>
-    ),
-  },
-  {
-    value: "cooking",
-    label: "Cuisine",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 11l19-9-9 19-2-8-8-2z"/>
-      </svg>
-    ),
-  },
-  {
-    value: "language",
-    label: "Langue",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/>
-        <path d="m22 22-5-10-5 10"/><path d="M14 18h6"/>
-      </svg>
-    ),
-  },
-  {
-    value: "business",
-    label: "Business",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <line x1="12" y1="20" x2="12" y2="10"/>
-        <line x1="18" y1="20" x2="18" y2="4"/>
-        <line x1="6" y1="20" x2="6" y2="16"/>
-      </svg>
-    ),
-  },
-  {
-    value: "art",
-    label: "Art",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/>
-        <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/>
-        <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/>
-        <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/>
-        <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
-      </svg>
-    ),
-  },
-  {
-    value: "other",
-    label: "Autre",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-        <line x1="12" y1="17" x2="12.01" y2="17"/>
-      </svg>
-    ),
-  },
+  { value: "sport",    label: "Sport",    emoji: "🥊" },
+  { value: "music",    label: "Musique",  emoji: "🎸" },
+  { value: "cooking",  label: "Cuisine",  emoji: "🍳" },
+  { value: "language", label: "Langue",   emoji: "🌍" },
+  { value: "business", label: "Business", emoji: "💼" },
+  { value: "art",      label: "Art",      emoji: "🎨" },
+  { value: "other",    label: "Autre",    emoji: "✨" },
+];
+
+const STEPS = [
+  { n: 1, label: "Domaine" },
+  { n: 2, label: "Profil"  },
+  { n: 3, label: "Go !"    },
 ];
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const [step, setStep] = useState<Step>(1);
-  const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
-  const [bio, setBio] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isStripeLoading, setIsStripeLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [step, setStep]               = useState<Step>(1);
+  const [selectedDomain, setDomain]   = useState<string>("");
+  const [bio, setBio]                 = useState("");
+  const [isSubmitting, setSubmitting] = useState(false);
+  const [error, setError]             = useState<string | null>(null);
 
-  const toggleDomain = (value: string) => {
-    setSelectedDomains((prev) =>
-      prev.includes(value) ? prev.filter((d) => d !== value) : [...prev, value]
-    );
-  };
-
-  const handleProfileSave = async () => {
-    setIsSubmitting(true);
+  // ── Étape 2 : sauvegarder le profil ──────────────────────────────────────
+  async function saveProfile() {
+    setSubmitting(true);
     setError(null);
     try {
       const res = await fetch("/api/coach/onboarding", {
-        method: "POST",
+        method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ domains: selectedDomains, bio: bio.trim() || undefined }),
+        body:    JSON.stringify({ domains: [selectedDomain], bio: bio.trim() || undefined }),
       });
-      if (!res.ok) throw new Error("Erreur lors de la création du profil");
-      setStep(2);
-    } catch {
-      setError("Une erreur est survenue. Réessaie.");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? "Erreur serveur");
+      }
+      setStep(3);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Une erreur est survenue. Réessaie.");
     } finally {
-      setIsSubmitting(false);
+      setSubmitting(false);
     }
-  };
-
-  const handleStripeConnect = async () => {
-    setIsStripeLoading(true);
-    try {
-      const res = await fetch("/api/coach/stripe-connect", { method: "POST" });
-      const { url } = await res.json();
-      window.location.href = url;
-    } catch {
-      setIsStripeLoading(false);
-    }
-  };
+  }
 
   return (
-    <main className="min-h-screen bg-[#1a1a1a]">
-      <div className="page-container pt-10 pb-16 max-w-lg">
+    <main className="min-h-screen" style={{ background: "var(--color-bg)" }}>
+      <div className="max-w-md mx-auto px-5 pt-10 pb-20">
 
-        {/* Progress */}
-        <div className="flex gap-2 mb-10">
-          {([1, 2] as Step[]).map((s) => (
-            <div
-              key={s}
-              className={`h-0.5 flex-1 transition-colors duration-300 ${s <= step ? "bg-[#FF7A00]" : "bg-[#2a2a2a]"}`}
-            />
+        {/* ── Barre de progression ── */}
+        <div className="flex items-center gap-2 mb-10">
+          {STEPS.map((s, i) => (
+            <div key={s.n} className="flex items-center gap-2 flex-1">
+              <div className={`flex items-center justify-center w-6 h-6 shrink-0 border transition-colors duration-300 ${
+                s.n < step  ? "bg-[#FF7A00] border-[#FF7A00]" :
+                s.n === step ? "border-[#FF7A00]" :
+                "border-[#2a2a2a]"
+              }`}>
+                {s.n < step
+                  ? <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  : <span className="font-display-md text-[9px]" style={{ color: s.n === step ? "#FF7A00" : "var(--color-muted)" }}>{s.n}</span>
+                }
+              </div>
+              <span className="font-display-md text-[9px] tracking-widest" style={{ color: s.n === step ? "#FF7A00" : "var(--color-muted)" }}>
+                {s.label.toUpperCase()}
+              </span>
+              {i < STEPS.length - 1 && (
+                <div className="h-px flex-1" style={{ backgroundColor: s.n < step ? "#FF7A00" : "var(--color-border)" }} />
+              )}
+            </div>
           ))}
         </div>
 
-        {/* ─── ÉTAPE 1 : Domaine + bio ─── */}
+        {/* ════════════════════════════════════════
+            ÉTAPE 1 — Choix du domaine
+        ════════════════════════════════════════ */}
         {step === 1 && (
-          <div className="space-y-8 animate-fade-up">
-
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-1 h-5 bg-[#FF7A00]" />
-                <span className="font-display-md text-xs text-[#FF7A00] tracking-[0.2em]">1 / 2</span>
-              </div>
-              <h1 className="font-display text-4xl text-white leading-tight">
+          <div className="space-y-8">
+            <div className="space-y-2">
+              <p className="font-display-md text-[10px] tracking-[0.3em] text-[#FF7A00]">ÉTAPE 1 / 3</p>
+              <h1 className="font-display leading-[0.9]" style={{ fontSize: "clamp(2rem, 8vw, 3rem)", color: "var(--color-text)" }}>
                 DANS QUOI<br />TU EXCELLES ?
               </h1>
-              <p className="text-[#555] mt-2 text-sm">
-                Choisis un ou plusieurs domaines. Tu pourras en ajouter plus tard.
+              <p className="text-sm font-sans" style={{ color: "var(--color-muted)" }}>
+                Choisis ton domaine principal. Tu pourras en ajouter d'autres plus tard.
               </p>
             </div>
 
-            {/* Domain grid */}
-            <div className="grid grid-cols-2 gap-2">
-              {DOMAINS.map(({ value, label, icon }) => {
-                const active = selectedDomains.includes(value);
+            <div className="grid grid-cols-1 gap-2">
+              {DOMAINS.map(({ value, label, emoji }) => {
+                const active = selectedDomain === value;
                 return (
                   <button
                     key={value}
-                    onClick={() => toggleDomain(value)}
-                    className={`group flex items-center gap-3 p-4 border text-left transition-all duration-150 ${
-                      active
-                        ? "border-[#FF7A00] bg-[#FF7A00]/10 text-[#FF7A00]"
-                        : "border-[#2a2a2a] bg-[#1e1e1e] text-[#555] hover:border-[#FF7A00]/40 hover:text-white"
-                    }`}
+                    onClick={() => setDomain(value)}
+                    className="flex items-center gap-4 px-4 py-3.5 border text-left transition-all duration-150 cursor-pointer"
+                    style={{
+                      borderColor:     active ? "#FF7A00" : "var(--color-border)",
+                      backgroundColor: active ? "rgba(255,122,0,0.08)" : "var(--color-bg-card)",
+                      color:           active ? "#FF7A00" : "var(--color-text)",
+                    }}
                   >
-                    <span className="shrink-0">{icon}</span>
-                    <span className="font-display text-sm">{label.toUpperCase()}</span>
+                    <span className="text-xl w-7 shrink-0">{emoji}</span>
+                    <span className="font-display text-base">{label.toUpperCase()}</span>
                     {active && (
-                      <svg className="ml-auto shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <svg className="ml-auto shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF7A00" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <polyline points="20 6 9 17 4 12"/>
                       </svg>
                     )}
@@ -187,107 +120,160 @@ export default function OnboardingPage() {
               })}
             </div>
 
-            {/* Bio optionnelle */}
+            <button
+              onClick={() => selectedDomain && setStep(2)}
+              disabled={!selectedDomain}
+              className="w-full font-display-md text-[11px] tracking-[0.2em] text-black py-4 flame-gradient hover:opacity-90 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              CONTINUER →
+            </button>
+          </div>
+        )}
+
+        {/* ════════════════════════════════════════
+            ÉTAPE 2 — Bio + sauvegarde
+        ════════════════════════════════════════ */}
+        {step === 2 && (
+          <div className="space-y-8">
             <div className="space-y-2">
-              <label className="font-display-md text-[10px] tracking-wider text-[#444] block">
-                TA PHRASE DE PRÉSENTATION <span className="text-[#2a2a2a] font-sans normal-case tracking-normal">— optionnel</span>
+              <p className="font-display-md text-[10px] tracking-[0.3em] text-[#FF7A00]">ÉTAPE 2 / 3</p>
+              <h1 className="font-display leading-[0.9]" style={{ fontSize: "clamp(2rem, 8vw, 3rem)", color: "var(--color-text)" }}>
+                EN DEUX<br />MOTS.
+              </h1>
+              <p className="text-sm font-sans" style={{ color: "var(--color-muted)" }}>
+                Une phrase sur toi — optionnel, tu peux le faire plus tard.
+              </p>
+            </div>
+
+            {/* Domaine sélectionné — recap */}
+            <div className="flex items-center gap-3 border-l-2 border-[#FF7A00] pl-4">
+              <span className="text-xl">{DOMAINS.find(d => d.value === selectedDomain)?.emoji}</span>
+              <div>
+                <p className="font-display-md text-[9px] tracking-widest" style={{ color: "var(--color-muted)" }}>DOMAINE CHOISI</p>
+                <p className="font-display text-lg" style={{ color: "var(--color-text)" }}>
+                  {DOMAINS.find(d => d.value === selectedDomain)?.label.toUpperCase()}
+                </p>
+              </div>
+              <button
+                onClick={() => setStep(1)}
+                className="ml-auto font-display-md text-[9px] tracking-widest hover:text-[#FF7A00] transition-colors"
+                style={{ color: "var(--color-muted)" }}
+              >
+                CHANGER
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              <label className="font-display-md text-[10px] tracking-widest block" style={{ color: "var(--color-muted)" }}>
+                TA PHRASE DE PRÉSENTATION
               </label>
               <textarea
                 value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                placeholder="Ex : 12 ans de MMA, j'enseigne la défense et la frappe aux débutants."
+                onChange={e => setBio(e.target.value)}
+                placeholder={"Ex : 12 ans de MMA, j'enseigne la défense et la frappe aux débutants."}
                 maxLength={200}
-                rows={2}
-                className="w-full px-4 py-3 bg-[#1e1e1e] border border-[#2a2a2a] text-white
-                           placeholder:text-[#333] focus:outline-none focus:border-[#FF7A00]/50
-                           resize-none text-sm transition-colors"
+                rows={3}
+                className="w-full px-4 py-3 border focus:outline-none resize-none text-sm transition-colors"
+                style={{
+                  backgroundColor: "var(--color-bg-card)",
+                  borderColor:     "var(--color-border)",
+                  color:           "var(--color-text)",
+                }}
+                onFocus={e => { e.target.style.borderColor = "rgba(255,122,0,0.5)"; }}
+                onBlur={e =>  { e.target.style.borderColor = "var(--color-border)"; }}
               />
-              <p className="text-[11px] text-right text-[#333]">{bio.length}/200</p>
+              <p className="text-[11px] text-right" style={{ color: "var(--color-muted)" }}>{bio.length}/200</p>
             </div>
 
             {error && (
-              <p className="text-red-400 text-sm font-sans bg-red-500/5 border border-red-500/20 px-3 py-2">
+              <p className="text-red-400 text-sm font-sans border border-red-500/20 px-3 py-2 bg-red-500/5">
                 {error}
               </p>
             )}
 
-            <Button
-              onClick={handleProfileSave}
-              disabled={selectedDomains.length === 0}
-              loading={isSubmitting}
-              fullWidth
-            >
-              Continuer →
-            </Button>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setStep(1)}
+                className="px-5 py-4 border font-display-md text-[10px] tracking-widest transition-colors hover:border-[#FF7A00]/40"
+                style={{ borderColor: "var(--color-border)", color: "var(--color-muted)" }}
+              >
+                ←
+              </button>
+              <button
+                onClick={saveProfile}
+                disabled={isSubmitting}
+                className="flex-1 font-display-md text-[11px] tracking-[0.2em] text-black py-4 flame-gradient hover:opacity-90 transition-opacity disabled:opacity-50"
+              >
+                {isSubmitting ? "ENREGISTREMENT…" : "CRÉER MON PROFIL →"}
+              </button>
+            </div>
           </div>
         )}
 
-        {/* ─── ÉTAPE 2 : Stripe Connect ─── */}
-        {step === 2 && (
-          <div className="space-y-8 animate-fade-up">
-
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-1 h-5 bg-[#FF7A00]" />
-                <span className="font-display-md text-xs text-[#FF7A00] tracking-[0.2em]">2 / 2</span>
+        {/* ════════════════════════════════════════
+            ÉTAPE 3 — Go ! Créer la première session
+        ════════════════════════════════════════ */}
+        {step === 3 && (
+          <div className="space-y-8">
+            {/* Succès */}
+            <div className="space-y-3">
+              <div className="w-12 h-12 border-2 border-[#FF7A00] flex items-center justify-center">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF7A00" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
               </div>
-              <h1 className="font-display text-4xl text-white leading-tight">
-                REÇOIS TES<br />PAIEMENTS
+              <p className="font-display-md text-[10px] tracking-[0.3em] text-[#FF7A00]">PROFIL CRÉÉ</p>
+              <h1 className="font-display leading-[0.9]" style={{ fontSize: "clamp(2rem, 8vw, 3rem)", color: "var(--color-text)" }}>
+                C'EST PARTI.<br />
+                <span className="flame-text">PREMIÈRE SESSION.</span>
               </h1>
-              <p className="text-[#555] mt-2 text-sm leading-relaxed">
-                On utilise Stripe pour virer tes gains directement sur ton compte. Rapide, sécurisé, standard dans l'industrie.
+              <p className="text-sm font-sans" style={{ color: "var(--color-muted)" }}>
+                Crée ta première session maintenant — ça prend 3 minutes. Les paiements, tu les configures quand tu veux.
               </p>
             </div>
 
-            {/* Infos Stripe */}
-            <div className="border border-[#2a2a2a] divide-y divide-[#2a2a2a]">
+            {/* Ce qui t'attend */}
+            <div className="border divide-y" style={{ borderColor: "var(--color-border)" }}>
               {[
-                {
-                  icon: (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF7A00" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                    </svg>
-                  ),
-                  text: "Sécurisé — Stripe gère des milliards de transactions par an.",
-                },
-                {
-                  icon: (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF7A00" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
-                    </svg>
-                  ),
-                  text: "Prépare ton IBAN et une pièce d'identité — 3 minutes maxi.",
-                },
-                {
-                  icon: (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF7A00" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-                    </svg>
-                  ),
-                  text: "Virements chaque lundi pour les sessions de la semaine passée.",
-                },
-              ].map(({ icon, text }, i) => (
-                <div key={i} className="flex items-start gap-4 px-4 py-3.5">
-                  <span className="mt-0.5 shrink-0">{icon}</span>
-                  <p className="text-sm text-[#888]">{text}</p>
+                { n: "3 min", label: "pour créer une session",     done: false },
+                { n: "70%",   label: "des revenus pour toi",        done: false },
+                { n: "10–20", label: "participants par session",    done: false },
+              ].map(({ n, label }) => (
+                <div key={label} className="flex items-center gap-4 px-4 py-3" style={{ backgroundColor: "var(--color-bg-card)" }}>
+                  <span className="font-display text-2xl text-[#FF7A00] w-14 shrink-0">{n}</span>
+                  <span className="text-sm font-sans" style={{ color: "var(--color-muted)" }}>{label}</span>
                 </div>
               ))}
             </div>
 
+            {/* CTA principal */}
             <div className="space-y-3">
-              <Button onClick={handleStripeConnect} loading={isStripeLoading} fullWidth>
-                Connecter mon compte bancaire →
-              </Button>
+              <button
+                onClick={() => router.push("/sessions/new")}
+                className="w-full font-display-md text-[11px] tracking-[0.2em] text-black py-5 flame-gradient hover:opacity-90 transition-opacity pulse-orange"
+              >
+                CRÉER MA PREMIÈRE SESSION →
+              </button>
+
+              {/* Secondaire : aller au dashboard */}
               <button
                 onClick={() => router.push("/dashboard")}
-                className="w-full text-sm text-[#444] text-center hover:text-[#777] transition-colors py-1"
+                className="w-full text-sm font-sans py-2 transition-colors"
+                style={{ color: "var(--color-muted)" }}
               >
-                Passer pour l'instant — je le ferai plus tard
+                Voir mon dashboard d'abord
               </button>
             </div>
 
+            {/* Note Stripe non-bloquante */}
+            <div className="border-l-2 border-[#FF7A00]/30 pl-4">
+              <p className="text-xs font-sans" style={{ color: "var(--color-muted)" }}>
+                Les paiements (Stripe) se configurent depuis ton dashboard — tu as le temps avant ta première session.
+              </p>
+            </div>
           </div>
         )}
+
       </div>
     </main>
   );

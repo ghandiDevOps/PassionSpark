@@ -35,6 +35,9 @@ function validateStep(step: number, data: SessionFormData): string | null {
       return null;
     case 3:
       if (data.locationAddress.length < 5) return "Renseigne l'adresse du lieu.";
+      if (data.locationLat === 0 || data.locationLng === 0) {
+        return "Sélectionne une adresse dans les suggestions pour la géolocaliser.";
+      }
       return null;
     case 4:
       return null; // sliders ont toujours une valeur valide
@@ -62,13 +65,13 @@ export function SessionForm() {
     if (err) { setError(err); return; }
     setError(null);
     setStep((s) => Math.min(s + 1, STEPS.length - 1));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function goPrev() {
     setError(null);
     setStep((s) => Math.max(s - 1, 0));
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (typeof window !== "undefined") window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   async function submit() {
@@ -85,6 +88,7 @@ export function SessionForm() {
         skillFocus:      data.skillFocus,
         domain:          data.domain,
         category:        data.category,
+        coverImageUrl:   data.coverImageUrl,
         dateStart,
         durationMin:     data.durationMin,
         locationAddress: data.locationAddress,

@@ -155,7 +155,7 @@ src/app/(coach)/sessions/[id]/scan/page.tsx ← scanner QR côté coach
 docs/          ← documentation complète
 docs/phases/   ← guides par phase (PHASE_0_SETUP.md, ...)
 marketing/     ← flyers PDF coachs
-passionplay/   ← CE DOSSIER — code Next.js
+passionspark/  ← CE DOSSIER — code Next.js
 ../MEMORY.md   ← mémoire complète du projet
 ../SECURITY.md ← règles sécurité avec exemples de code
 ../CODE_GUIDE.md ← doc de chaque fichier et fonction

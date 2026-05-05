@@ -59,9 +59,14 @@ export default async function MarketingLayout({ children }: { children: React.Re
             )}
 
             {isParticipant && (
-              <Link href="/my" className="btn-passion text-sm px-5 py-2.5 min-h-0">
-                MES BILLETS
-              </Link>
+              <>
+                <Link href="/my/bookings" className="font-display-md text-sm transition-colors" style={{ color: "var(--color-muted)" }}>
+                  MES BILLETS
+                </Link>
+                <Link href="/my" className="btn-passion text-sm px-5 py-2.5 min-h-0">
+                  MON PROFIL
+                </Link>
+              </>
             )}
 
             <ThemeToggle />
@@ -79,7 +84,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
               <Link href="/dashboard" className="btn-passion text-xs px-3 py-2 min-h-0">MON ESPACE</Link>
             )}
             {isParticipant && (
-              <Link href="/my" className="btn-passion text-xs px-3 py-2 min-h-0">MES BILLETS</Link>
+              <Link href="/my/bookings" className="btn-passion text-xs px-3 py-2 min-h-0">MES BILLETS 🎫</Link>
             )}
             <ThemeToggle />
           </div>

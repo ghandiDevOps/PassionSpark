@@ -185,7 +185,7 @@ function exportPDF(data: Record<string, any>[], filename: string, title: string)
       </style>
     </head>
     <body>
-      <h1>PASSIONPLAY — ${title}</h1>
+      <h1>PASSION SPARK — ${title}</h1>
       <h2>Exporté le ${new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</h2>
       <table>
         <thead><tr>${headers.map(h => `<th>${h.toUpperCase()}</th>`).join('')}</tr></thead>
@@ -347,7 +347,7 @@ export default function RevenueCharts() {
             <div className="absolute right-0 top-full mt-2 bg-[#2a2a2a] border border-[#FF7A00]/30 rounded-lg shadow-xl z-50 overflow-hidden min-w-[200px]">
               <button
                 onClick={() => {
-                  exportCSV(getExportData(), `passionplay-revenus-${activePeriod}`);
+                  exportCSV(getExportData(), `passionspark-revenus-${activePeriod}`);
                   setShowExportMenu(false);
                 }}
                 className="flex items-center gap-3 w-full px-4 py-3 text-left text-sm text-gray-300 hover:bg-orange-500/10 hover:text-white transition-colors"
@@ -361,7 +361,7 @@ export default function RevenueCharts() {
               <div className="border-t border-[#3a3a3a]" />
               <button
                 onClick={() => {
-                  exportPDF(getExportData(), `passionplay-revenus-${activePeriod}`, `Revenus — ${periodLabels[activePeriod]}`);
+                  exportPDF(getExportData(), `passionspark-revenus-${activePeriod}`, `Revenus — ${periodLabels[activePeriod]}`);
                   setShowExportMenu(false);
                 }}
                 className="flex items-center gap-3 w-full px-4 py-3 text-left text-sm text-gray-300 hover:bg-orange-500/10 hover:text-white transition-colors"

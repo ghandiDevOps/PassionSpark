@@ -38,6 +38,8 @@ export async function POST(
 
       if (!session) throw new Error("SESSION_NOT_FOUND");
       if (session.status !== "published") throw new Error("SESSION_NOT_AVAILABLE");
+      // On accepte les réservations même si Stripe n'est pas encore actif —
+      // le PaymentIntent sera sans destination charge (collecte plateforme).
       if (!session.coach.stripeAccountId) throw new Error("COACH_STRIPE_NOT_CONFIGURED");
 
       const reservation = await tx.session.updateMany({
@@ -86,6 +88,7 @@ export async function POST(
     const paymentIntent = await createPaymentIntent({
       amountCents:          result.session.priceCents,
       coachStripeAccountId: result.session.coach.stripeAccountId!,
+      coachStripeActive:    result.session.coach.stripeOnboardingStatus === "active",
       metadata: {
         booking_id:  result.booking.id,
         session_id:  result.session.id,

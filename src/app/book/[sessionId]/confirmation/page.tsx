@@ -1,5 +1,4 @@
-﻿import { notFound } from "next/navigation";
-import { db } from "@/lib/db";
+﻿import { db } from "@/lib/db";
 import { QRCodeSVG } from "qrcode.react";
 import { ConfirmationPoller } from "@/components/booking/confirmation-poller";
 import { formatSessionDateTime } from "@/lib/utils/format-date";
@@ -10,9 +9,30 @@ interface Props {
   searchParams: { booking_id?: string; redirect_status?: string };
 }
 
+function InvalidLinkScreen({ reason }: { reason: "missing" | "unknown" | "cancelled" }) {
+  const messages = {
+    missing:   { title: "LIEN DE CONFIRMATION INCOMPLET", body: "Cette page nécessite un identifiant de réservation. Si tu viens de payer, attends quelques secondes puis réessaie depuis ton email de confirmation." },
+    unknown:   { title: "RÉSERVATION INTROUVABLE",       body: "Aucune réservation ne correspond à ce lien. Vérifie l'email de confirmation ou consulte tes billets." },
+    cancelled: { title: "RÉSERVATION ANNULÉE",            body: "Cette réservation a été annulée ou n'a jamais été finalisée." },
+  };
+  const { title, body } = messages[reason];
+  return (
+    <main className="min-h-screen bg-[#1a1a1a] flex flex-col items-center justify-center px-4 text-center">
+      <div className="w-1 h-12 bg-[#FF7A00] mx-auto mb-8" />
+      <p className="font-display text-5xl text-[#FF7A00] mb-4">⚠️</p>
+      <h1 className="font-display text-2xl sm:text-3xl text-white mb-3 max-w-md">{title}</h1>
+      <p className="text-[#888] text-sm font-sans mb-8 max-w-sm">{body}</p>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <Link href="/my/bookings" className="btn-passion px-8">MES BILLETS</Link>
+        <Link href="/explore" className="btn-passion-outline px-8">EXPLORER</Link>
+      </div>
+    </main>
+  );
+}
+
 export default async function ConfirmationPage({ searchParams }: Props) {
   const bookingId = searchParams.booking_id;
-  if (!bookingId) notFound();
+  if (!bookingId) return <InvalidLinkScreen reason="missing" />;
 
   const booking = await db.booking.findUnique({
     where: { id: bookingId },
@@ -25,15 +45,14 @@ export default async function ConfirmationPage({ searchParams }: Props) {
     },
   });
 
-  if (!booking) notFound();
+  if (!booking) return <InvalidLinkScreen reason="unknown" />;
 
   const isPending   = booking.status === "pending";
   const isConfirmed = booking.status === "confirmed" || booking.status === "attended";
   const stripeOk    = searchParams.redirect_status === "succeeded";
 
-  // Booking cancelled ou invalid sans redirect Stripe valide
   if (!isConfirmed && !(isPending && stripeOk)) {
-    notFound();
+    return <InvalidLinkScreen reason="cancelled" />;
   }
 
   const { session } = booking;
@@ -117,7 +136,7 @@ export default async function ConfirmationPage({ searchParams }: Props) {
         <div className="space-y-3">
           <a
             href={icalUrl}
-            download="passionplay-session.ics"
+            download="passionspark-session.ics"
             className="btn-passion-outline text-center block"
           >
             📅 Ajouter au calendrier

@@ -7,7 +7,7 @@ export default function SignUpPage() {
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
           <Link href="/" className="font-display text-3xl text-white hover:text-[#FF7A00] transition-colors">
-            PASSIONPLAY
+            PASSION SPARK
           </Link>
           <p className="text-[#888] text-sm mt-1">Crée ton compte et partage ta passion</p>
         </div>

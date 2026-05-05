@@ -1,5 +1,6 @@
 ﻿import { DOMAIN_LABELS, DOMAIN_EMOJIS } from "@/constants";
 import type { SessionFormData } from "./types";
+import { CoverImageUpload } from "./cover-image-upload";
 
 interface Props {
   data: SessionFormData;
@@ -9,7 +10,7 @@ interface Props {
 const DOMAINS = ["sport", "music", "cooking", "language", "business", "art", "other"] as const;
 
 const CATEGORY_SUGGESTIONS: Record<string, string[]> = {
-  sport:    ["Football", "Basket", "MMA", "Padel", "Boxe", "Tennis", "Yoga", "Natation", "Surf", "Escalade"],
+  sport:    ["Football", "Basket", "MMA", "Padel", "Boxe", "Tennis", "Yoga", "Natation", "Surf", "Escalade"],   
   music:    ["Guitare", "Piano", "Chant", "Batterie", "DJ", "Production"],
   cooking:  ["Pâtisserie", "Sushi", "Cuisine italienne", "Barbecue", "Vegan"],
   language: ["Anglais", "Espagnol", "Arabe", "Japonais", "Mandarin"],
@@ -30,7 +31,15 @@ export function StepInfo({ data, onChange }: Props) {
         Sois précis — les participants choisissent sur la base de ces infos.
       </p>
 
-      <div className="space-y-6">
+      <div className="space-y-8">
+        
+        {/* Image de couverture */}
+        <CoverImageUpload 
+          value={data.coverImageUrl} 
+          onChange={(url) => onChange({ coverImageUrl: url })} 
+        />
+
+        <div className="h-px bg-[#2a2a2a]" />
 
         {/* Domaine */}
         <div>
@@ -68,7 +77,7 @@ export function StepInfo({ data, onChange }: Props) {
                   key={s}
                   type="button"
                   onClick={() => onChange({ category: s })}
-                  className={`font-display-md text-xs px-3 py-1.5 border transition-colors duration-120 ${
+                  className={`font-display-md text-xs px-3 py-1.5 border transition-colors duration-120 ${      
                     data.category === s
                       ? "border-[#FF7A00] bg-[#FF7A00]/10 text-[#FF7A00]"
                       : "border-[#2a2a2a] text-[#555] hover:border-[#FF7A00]/50 hover:text-[#888]"
@@ -112,7 +121,7 @@ export function StepInfo({ data, onChange }: Props) {
         <div>
           <label className="font-display-md text-xs text-[#888] tracking-widest block mb-3">
             COMPÉTENCE CIBLÉE
-            <span className="text-[#444] ml-2 normal-case font-sans">{data.skillFocus.length}/100</span>
+            <span className="text-[#444] ml-2 normal-case font-sans">{data.skillFocus.length}/100</span>        
           </label>
           <input
             type="text"
@@ -131,7 +140,7 @@ export function StepInfo({ data, onChange }: Props) {
         <div>
           <label className="font-display-md text-xs text-[#888] tracking-widest block mb-3">
             DESCRIPTION
-            <span className="text-[#444] ml-2 normal-case font-sans">{data.description.length}/1000</span>
+            <span className="text-[#444] ml-2 normal-case font-sans">{data.description.length}/1000</span>      
           </label>
           <textarea
             rows={5}

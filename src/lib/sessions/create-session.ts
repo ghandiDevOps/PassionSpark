@@ -1,4 +1,4 @@
-import { z } from "zod";
+﻿import { z } from "zod";
 import { db } from "@/lib/db";
 import { slugify } from "@/lib/utils/slugify";
 import {
@@ -9,7 +9,7 @@ import {
   DURATION_OPTIONS,
 } from "@/constants";
 
-// ─── Schéma de validation ───────────────────────────────────────────────────
+// ——— Schéma de validation ——————————————————————————————————————————————————
 
 export const createSessionSchema = z.object({
   // Étape 1 — Type
@@ -21,15 +21,16 @@ export const createSessionSchema = z.object({
   skillFocus:  z.string().min(3, "Minimum 3 caractères").max(100, "Maximum 100 caractères"),
   domain:      z.enum(["sport", "music", "cooking", "language", "business", "art", "other"]),
   category:    z.string().min(2, "Obligatoire").max(50),
+  coverImageUrl: z.string().url("URL d'image invalide").optional().or(z.literal("")),
 
   // Étape 3 — Date & heure
   dateStart:   z.string().min(1, "Date obligatoire"),  // ISO string
-  durationMin: z.number().refine(v => (DURATION_OPTIONS as readonly number[]).includes(v), "Durée invalide"),
+  durationMin: z.number().refine(v => (DURATION_OPTIONS as readonly number[]).includes(v), "Durée invalide"),  
 
   // Étape 4 — Lieu
   locationAddress: z.string().min(5, "Adresse obligatoire").max(200),
-  locationLat:     z.number(),
-  locationLng:     z.number(),
+  locationLat:     z.number().refine((v) => v >= -90 && v <= 90 && v !== 0, "Latitude invalide"),
+  locationLng:     z.number().refine((v) => v >= -180 && v <= 180 && v !== 0, "Longitude invalide"),
 
   // Étape 5 — Tarif & places
   priceCents: z
@@ -45,7 +46,7 @@ export const createSessionSchema = z.object({
 
 export type CreateSessionInput = z.infer<typeof createSessionSchema>;
 
-// ─── Fonction principale ────────────────────────────────────────────────────
+// ——— Fonction principale ——————————————————————————————————————————————————
 
 export async function createSession(
   input: CreateSessionInput,
@@ -71,6 +72,7 @@ export async function createSession(
       domain:          data.domain,
       category:        data.category,
       skillFocus:      data.skillFocus,
+      coverImageUrl:   data.coverImageUrl || null,
       dateStart:       new Date(data.dateStart),
       durationMin:     data.durationMin,
       locationAddress: data.locationAddress,
@@ -93,7 +95,7 @@ export async function createSession(
   return session;
 }
 
-// ─── Helper : slug unique ───────────────────────────────────────────────────
+// ——— Helper : slug unique ——————————————————————————————————————————————————
 
 async function makeUniqueSlug(base: string): Promise<string> {
   let candidate = base;

@@ -1,4 +1,4 @@
-export type SessionFormData = {
+﻿export type SessionFormData = {
   // Étape 0 — Type
   sessionType: "discovery" | "progression";
 
@@ -8,6 +8,7 @@ export type SessionFormData = {
   skillFocus:  string;
   domain:      "sport" | "music" | "cooking" | "language" | "business" | "art" | "other";
   category:    string;
+  coverImageUrl: string;
 
   // Étape 2 — Date & heure
   dateStr:     string; // YYYY-MM-DD
@@ -31,6 +32,7 @@ export const INITIAL_FORM: SessionFormData = {
   skillFocus:      "",
   domain:          "sport",
   category:        "",
+  coverImageUrl:   "",
   dateStr:         "",
   timeStr:         "10:00",
   durationMin:     60,

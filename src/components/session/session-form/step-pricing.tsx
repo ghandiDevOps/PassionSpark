@@ -1,5 +1,13 @@
 ﻿import { calculateAmounts } from "@/lib/stripe";
-import { MIN_PRICE_CENTS, MAX_PRICE_CENTS, MIN_SPOTS, MAX_SPOTS } from "@/constants";
+import {
+  MIN_PRICE_CENTS,
+  MAX_PRICE_CENTS,
+  MIN_SPOTS,
+  MAX_SPOTS,
+  COACH_SHARE_PERCENT,
+  PLATFORM_FEE_PERCENT,
+  REFERRAL_FEE_PERCENT,
+} from "@/constants";
 import type { SessionFormData } from "./types";
 
 interface Props {
@@ -12,10 +20,11 @@ function formatEuros(cents: number) {
 }
 
 export function StepPricing({ data, onChange }: Props) {
-  const amounts   = calculateAmounts(data.priceCents);
-  const grossTotal   = data.priceCents * data.maxSpots;
-  const coachTotal   = amounts.coachNetCents * data.maxSpots;
-  const platformTotal = amounts.applicationFeeCents * data.maxSpots;
+  const amounts        = calculateAmounts(data.priceCents);
+  const grossTotal     = data.priceCents * data.maxSpots;
+  const coachTotal     = amounts.coachNetCents * data.maxSpots;
+  const platformTotal  = amounts.platformFeeCents * data.maxSpots;
+  const referralTotal  = amounts.referralFeeCents * data.maxSpots;
 
   const priceStep = 50; // 0.50€ par cran
   const priceMin  = MIN_PRICE_CENTS; // 1300
@@ -111,25 +120,27 @@ export function StepPricing({ data, onChange }: Props) {
           <div className="w-full h-7 flex overflow-hidden border border-[#2a2a2a] mb-2">
             <div
               className="bg-[#FF7A00] flex items-center justify-center font-display-md text-xs text-white"
-              style={{ width: "70%" }}
+              style={{ width: `${COACH_SHARE_PERCENT}%` }}
             >
-              70%
+              {COACH_SHARE_PERCENT}%
             </div>
             <div
               className="bg-[#FF7A00]/25 flex items-center justify-center font-display-md text-[10px] text-white/50"
-              style={{ width: "22%" }}
+              style={{ width: `${PLATFORM_FEE_PERCENT}%` }}
             >
-              22%
+              {PLATFORM_FEE_PERCENT}%
             </div>
             <div
-              className="bg-[#222] flex items-center justify-center font-display-md text-[10px] text-white/30"
-              style={{ width: "8%" }}
-            />
+              className="bg-[#222] flex items-center justify-center font-display-md text-[10px] text-white/40"
+              style={{ width: `${REFERRAL_FEE_PERCENT}%` }}
+            >
+              {REFERRAL_FEE_PERCENT}%
+            </div>
           </div>
           <div className="flex justify-between text-[10px] text-[#444] font-sans">
             <span>Coach</span>
             <span>Plateforme</span>
-            <span>Frais</span>
+            <span>Parrainage</span>
           </div>
 
           {/* Détail chiffres */}
@@ -139,13 +150,20 @@ export function StepPricing({ data, onChange }: Props) {
               <span className="text-[#888]">{formatEuros(grossTotal)} brut</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[#555]">Commission Passion Spark (30%)</span>
+              <span className="text-[#555]">Commission Passion Spark ({PLATFORM_FEE_PERCENT}%)</span>
               <span className="text-[#555]">−{formatEuros(platformTotal)}</span>
             </div>
-            <div className="flex justify-between font-semibold">
-              <span className="text-white">Tes revenus nets</span>
+            <div className="flex justify-between">
+              <span className="text-[#555]">Parrainage ({REFERRAL_FEE_PERCENT}%)</span>
+              <span className="text-[#555]">−{formatEuros(referralTotal)}</span>
+            </div>
+            <div className="flex justify-between font-semibold pt-1 border-t border-[#252525]">
+              <span className="text-white">Tes revenus nets ({COACH_SHARE_PERCENT}%)</span>
               <span className="text-[#FF7A00]">{formatEuros(coachTotal)}</span>
             </div>
+            <p className="text-[#444] text-[10px] font-sans pt-1">
+              💡 Si tu amènes toi-même tes participants, le {REFERRAL_FEE_PERCENT}% parrainage te revient (soit {COACH_SHARE_PERCENT + REFERRAL_FEE_PERCENT}% au total).
+            </p>
           </div>
         </div>
 

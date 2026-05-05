@@ -49,23 +49,27 @@ export function calculateAmounts(
 export async function createPaymentIntent({
   amountCents,
   coachStripeAccountId,
+  coachStripeActive = false,
   metadata,
 }: {
   amountCents: number;
   coachStripeAccountId: string;
+  coachStripeActive?: boolean;
   metadata: Record<string, string>;
 }) {
   const { applicationFeeCents } = calculateAmounts(amountCents);
 
-  // En dev, les comptes seed (acct_seed_*) ne sont pas des vrais comptes Stripe Connect.
-  // On crée un PaymentIntent simple sans destination charge pour pouvoir tester le flow.
-  const isSeedAccount = coachStripeAccountId.startsWith("acct_seed_");
+  // Destination Charge uniquement si le compte Stripe est actif (capabilities activées).
+  // Comptes seed (acct_seed_*) ou comptes en cours d'onboarding → PaymentIntent simple,
+  // la plateforme collecte et reverse manuellement.
+  const isSeedAccount  = coachStripeAccountId.startsWith("acct_seed_");
+  const useDestination = coachStripeActive && !isSeedAccount;
 
   return stripe.paymentIntents.create({
     amount: amountCents,
     currency: "eur",
     automatic_payment_methods: { enabled: true },
-    ...(!isSeedAccount && {
+    ...(useDestination && {
       application_fee_amount: applicationFeeCents,
       transfer_data: { destination: coachStripeAccountId },
     }),

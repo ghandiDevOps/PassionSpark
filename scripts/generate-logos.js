@@ -1,6 +1,6 @@
 /**
  * generate-logos.js
- * Génère toutes les variantes de couleur du logo PassionPlay.
+ * Génère toutes les variantes de couleur du logo PassionSpark.
  * Usage : node scripts/generate-logos.js
  */
 
@@ -8,8 +8,8 @@ const fs   = require("fs");
 const path = require("path");
 
 // ─── Sources ───────────────────────────────────────────────────────────────────
-const srcWordmark = path.resolve(__dirname, "../public/PassionPlay_logoavectext_svg.svg");
-const srcIcon     = path.resolve(__dirname, "../public/PassionPlay_icon.svg");
+const srcWordmark = path.resolve(__dirname, "../public/PassionSpark_logoavectext_svg.svg");
+const srcIcon     = path.resolve(__dirname, "../public/PassionSpark_icon.svg");
 const outDir      = path.resolve(__dirname, "../public/logos");
 
 fs.mkdirSync(outDir, { recursive: true });
@@ -58,12 +58,12 @@ ${paths}
 }
 
 // ─── 1. Flamme (original) ─────────────────────────────────────────────────────
-fs.copyFileSync(srcWordmark, path.join(outDir, "passionplay-flamme.svg"));
-console.log("✅  passionplay-flamme.svg   ← original");
+fs.copyFileSync(srcWordmark, path.join(outDir, "passionspark-flamme.svg"));
+console.log("✅  passionspark-flamme.svg   ← original");
 
 // ─── 2. Variants mono ─────────────────────────────────────────────────────────
 for (const { name, color } of variants) {
-  const filename = `passionplay-${name}.svg`;
+  const filename = `passionspark-${name}.svg`;
   fs.writeFileSync(path.join(outDir, filename), buildMono(color), "utf-8");
   console.log(`✅  ${filename.padEnd(32)} ${color}`);
 }
@@ -82,8 +82,8 @@ const metalSvg = `${svgHeader}
 </defs>
 ${paths}
 </svg>`;
-fs.writeFileSync(path.join(outDir, "passionplay-metal.svg"), metalSvg, "utf-8");
-console.log("✅  passionplay-metal.svg             gradient argent");
+fs.writeFileSync(path.join(outDir, "passionspark-metal.svg"), metalSvg, "utf-8");
+console.log("✅  passionspark-metal.svg             gradient argent");
 
 // ─── 4. Or (gradient doré) ────────────────────────────────────────────────────
 // Remplace le flat or par un vrai gradient luxe
@@ -101,8 +101,8 @@ const goldSvg = `${svgHeader}
 ${paths}
 </svg>`;
 // Overwrite the flat or with the gradient version
-fs.writeFileSync(path.join(outDir, "passionplay-or.svg"), goldSvg, "utf-8");
-console.log("✅  passionplay-or.svg       (overwrite → gradient doré)");
+fs.writeFileSync(path.join(outDir, "passionspark-or.svg"), goldSvg, "utf-8");
+console.log("✅  passionspark-or.svg       (overwrite → gradient doré)");
 
 // ─── Icône : mêmes variants ───────────────────────────────────────────────────
 console.log("\n── Icône ──");

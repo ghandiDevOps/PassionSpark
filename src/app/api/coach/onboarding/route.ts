@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { z } from "zod";
@@ -22,12 +22,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "INVALID_PAYLOAD", details: parsed.error.flatten() }, { status: 400 });
   }
 
-  const user = await db.user.findUnique({
+  // Upsert user depuis Clerk si absent en base (webhook manqué)
+  let user = await db.user.findUnique({
     where: { clerkId: userId },
     select: { id: true, role: true, coachProfile: { select: { id: true } } },
   });
 
-  if (!user) return NextResponse.json({ error: "USER_NOT_FOUND" }, { status: 404 });
+  if (!user) {
+    const clerk = await clerkClient();
+    const clerkUser = await clerk.users.getUser(userId);
+    const email = clerkUser.emailAddresses[0]?.emailAddress ?? "";
+    const name  = [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(" ") || "Coach";
+
+    const created = await db.user.upsert({
+      where:  { clerkId: userId },
+      update: { email, name, avatarUrl: clerkUser.imageUrl },
+      create: { clerkId: userId, email, name, avatarUrl: clerkUser.imageUrl, role: "participant" },
+      select: { id: true, role: true, coachProfile: { select: { id: true } } },
+    });
+    user = created;
+    console.log(`[Onboarding] Auto-created user from Clerk: ${email}`);
+  }
 
   const { domains, bio } = parsed.data;
 
@@ -35,12 +50,12 @@ export async function POST(req: NextRequest) {
   await db.$transaction([
     db.user.update({
       where: { id: user.id },
-      data: { role: "coach" },
+      data:  { role: "coach" },
     }),
     user.coachProfile
       ? db.coachProfile.update({
           where: { id: user.coachProfile.id },
-          data: { domains, bio: bio ?? null },
+          data:  { domains, bio: bio ?? null },
         })
       : db.coachProfile.create({
           data: { userId: user.id, domains, bio: bio ?? null },

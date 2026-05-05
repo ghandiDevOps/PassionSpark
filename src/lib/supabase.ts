@@ -32,3 +32,10 @@ export function subscribeToSessionSpots(
     )
     .subscribe();
 }
+
+/**
+ * Abonnement Realtime sur les changements de réservations d'une session
+ */
+export function subscribeToSessionBookings(sessionId: string, onUpdate: (payload: any) => void) {
+  return supabaseClient.channel('session-bookings-' + sessionId).on('postgres_changes', { event: '*', schema: 'public', table: 'bookings', filter: 'sessionId=eq.' + sessionId }, onUpdate).subscribe();
+}
