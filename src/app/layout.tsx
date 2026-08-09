@@ -4,6 +4,7 @@ import { GeistMono } from "geist/font/mono";
 import localFont from "next/font/local";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Analytics } from "@vercel/analytics/next";
+import { Providers } from "./providers";
 import "@/styles/globals.css";
 
 // Auto-hébergé dans public/fonts/ — pas de dépendance Google Fonts externe
@@ -65,7 +66,7 @@ export default function RootLayout({
         <body
           className={`${GeistSans.variable} ${GeistMono.variable} ${barlowCondensed.variable} font-sans`}
         >
-          {children}
+          <Providers>{children}</Providers>
           <Analytics />
         </body>
       </html>
