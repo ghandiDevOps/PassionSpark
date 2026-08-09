@@ -17,16 +17,21 @@ function extractCity(address: string): string {
 export default async function ExplorePage() {
   const now = new Date();
 
-  const rawSessions = await db.session.findMany({
-    where: {
-      status:    { in: ["published", "full"] },
-      dateStart: { gte: now },
-    },
-    include: {
-      coach: { include: { user: true } },
-    },
-    orderBy: { dateStart: "asc" },
-  });
+  let rawSessions: Awaited<ReturnType<typeof db.session.findMany>> = [];
+  try {
+    rawSessions = await db.session.findMany({
+      where: {
+        status:    { in: ["published", "full"] },
+        dateStart: { gte: now },
+      },
+      include: {
+        coach: { include: { user: true } },
+      },
+      orderBy: { dateStart: "asc" },
+    });
+  } catch {
+    // DB temporairement indisponible — affiche la page vide plutôt qu'un 500
+  }
 
   const sessions: SessionCardData[] = rawSessions.map((s) => ({
     slug:         s.slug,
