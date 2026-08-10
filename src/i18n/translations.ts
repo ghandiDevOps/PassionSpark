@@ -109,6 +109,17 @@ export const translations = {
       },
     },
 
+    how_it_works: {
+      label: "COMMENT ÇA MARCHE",
+      title: "TROIS ÉTAPES.",
+      title_hl: "ZÉRO FRICTION.",
+      steps: [
+        { num: "01", title: "CHOISIS TA PASSION", body: "Sport, musique, cuisine, art, bien-être, tech — sélectionne le domaine qui te fait vibrer." },
+        { num: "02", title: "TROUVE UN COACH", body: "Parcours les sessions près de chez toi et choisis celle qui correspond à ton niveau." },
+        { num: "03", title: "RÉSERVE EN 30S", body: "Paiement sécurisé, place garantie, QR code envoyé instantanément. C'est prêt." },
+      ],
+    },
+
     social: {
       label: "ILS ONT SPARKÉ",
       title: "DES MOTS",
@@ -252,6 +263,17 @@ export const translations = {
           stat: "FROM SESSION 1",
         },
       },
+    },
+
+    how_it_works: {
+      label: "HOW IT WORKS",
+      title: "THREE STEPS.",
+      title_hl: "ZERO FRICTION.",
+      steps: [
+        { num: "01", title: "CHOOSE YOUR PASSION", body: "Sport, music, cooking, art, wellness, tech — pick the domain that speaks to you." },
+        { num: "02", title: "FIND A COACH", body: "Browse sessions near you and pick the one that matches your level." },
+        { num: "03", title: "BOOK IN 30S", body: "Secure payment, guaranteed spot, QR code sent instantly. You're set." },
+      ],
     },
 
     social: {

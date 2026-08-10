@@ -166,6 +166,25 @@ function PassionSelector({ onSelect }: { onSelect: (id: DomainId) => void }) {
       {/* Overlay */}
       <div className="fixed inset-0 bg-black/50" style={{ zIndex: 1 }} />
 
+      {/* Discrete top nav */}
+      <div
+        className="fixed top-0 left-0 right-0 flex items-center justify-end gap-6 px-6 h-14"
+        style={{ zIndex: 3 }}
+      >
+        <Link
+          href="/explore"
+          className="font-display-md text-[11px] tracking-[0.15em] text-white/60 hover:text-white transition-colors"
+        >
+          {locale === "fr" ? "EXPLORER" : "EXPLORE"}
+        </Link>
+        <Link
+          href="/sign-in"
+          className="font-display-md text-[11px] tracking-[0.15em] text-white/60 hover:text-white transition-colors"
+        >
+          {locale === "fr" ? "CONNEXION" : "SIGN IN"}
+        </Link>
+      </div>
+
       {/* Content */}
       <motion.div
         className="relative flex flex-col items-center text-center px-6 w-full"
@@ -449,6 +468,38 @@ function SiteV2({
               </div>
             </motion.div>
           </AnimatePresence>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════════
+          2b. COMMENT ÇA MARCHE — 3 étapes
+      ══════════════════════════════════════════════ */}
+      <section className="py-24 sm:py-36 px-6 max-w-6xl mx-auto bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-sm">
+
+        <FadeUp className="mb-16 text-center">
+          <p className="font-display-md text-[10px] tracking-[0.3em] text-[#888888] dark:text-[#555555] mb-4">
+            {t("how_it_works.label")}
+          </p>
+          <h2 className="font-display text-4xl sm:text-6xl text-[#0a0a0a] dark:text-white">
+            {t("how_it_works.title")}<br />
+            <span className="flame-text">{t("how_it_works.title_hl")}</span>
+          </h2>
+        </FadeUp>
+
+        <div className="grid sm:grid-cols-3 gap-8 sm:gap-6">
+          {tr.how_it_works.steps.map((step, i) => (
+            <FadeUp key={step.num} delay={i * 0.1}>
+              <div className="h-full border border-[#E5E5E5] dark:border-[#1a1a1a] p-8 hover:border-[#FF7A00]/40 transition-colors">
+                <span className="font-display text-5xl flame-text block mb-4">{step.num}</span>
+                <h3 className="font-display-md text-sm tracking-[0.15em] text-[#0a0a0a] dark:text-white mb-3">
+                  {step.title}
+                </h3>
+                <p className="text-[#444444] dark:text-[#aaaaaa] text-sm font-sans leading-relaxed">
+                  {step.body}
+                </p>
+              </div>
+            </FadeUp>
+          ))}
         </div>
       </section>
 
