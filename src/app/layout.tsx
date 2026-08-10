@@ -3,6 +3,7 @@ import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import localFont from "next/font/local";
 import { ClerkProvider } from "@clerk/nextjs";
+import { clerkFrFR } from "@/lib/clerk-localization-fr";
 import { Analytics } from "@vercel/analytics/next";
 import { Providers } from "./providers";
 import "@/styles/globals.css";
@@ -53,7 +54,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
+    <ClerkProvider localization={clerkFrFR}>
       <html lang="fr" suppressHydrationWarning>
         <head>
           {/* Anti-flash: apply theme class before first paint */}
