@@ -1,8 +1,13 @@
 ﻿import Link from "next/link";
+import type { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { formatDateShort, formatTime } from "@/lib/utils/format-date";
 import { ExploreClient } from "@/components/marketing/explore-client";
 import type { SessionCardData } from "@/components/marketing/session-card";
+
+type SessionWithCoach = Prisma.SessionGetPayload<{
+  include: { coach: { include: { user: true } } };
+}>;
 
 export const metadata = {
   title: "Sessions · Passion Spark",
@@ -17,7 +22,7 @@ function extractCity(address: string): string {
 export default async function ExplorePage() {
   const now = new Date();
 
-  let rawSessions: Awaited<ReturnType<typeof db.session.findMany>> = [];
+  let rawSessions: SessionWithCoach[] = [];
   try {
     rawSessions = await db.session.findMany({
       where: {

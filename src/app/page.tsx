@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { motion as motionOne } from "motion/react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
@@ -111,7 +110,7 @@ function DomainFlame({ id }: { id: DomainId }) {
 
 function AnimatedLogo({ src, size = 36, className = "mb-8" }: { src: string; size?: number; className?: string }) {
   return (
-    <motionOne.div
+    <motion.div
       className={className}
       style={{ willChange: "transform" }}
       // Entrée spring
@@ -124,7 +123,7 @@ function AnimatedLogo({ src, size = 36, className = "mb-8" }: { src: string; siz
       transition={{ duration: 0.9, ease: [0.34, 1.56, 0.64, 1] }}
     >
       {/* Flicker continu après l'entrée */}
-      <motionOne.div
+      <motion.div
         animate={{
           y:      [0, -5, -1, -7, -2, 0],
           rotate: [0, -2, 3, -3, 1, 0],
@@ -138,8 +137,8 @@ function AnimatedLogo({ src, size = 36, className = "mb-8" }: { src: string; siz
         }}
       >
         <Image src={src} alt="PassionSpark" width={size} height={size} />
-      </motionOne.div>
-    </motionOne.div>
+      </motion.div>
+    </motion.div>
   );
 }
 
