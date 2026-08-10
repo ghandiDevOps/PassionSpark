@@ -82,23 +82,23 @@ export default async function ExplorePage() {
       </div>
 
       {/* ── STATS TICKER ── */}
-      <div className="bg-[#111] border-b border-[#2a2a2a] overflow-hidden py-3">
-        <div className="animate-ticker whitespace-nowrap">
-          {[...Array(2)].flatMap(() => [
-            { n: "127+", l: "SESSIONS" },
-            { n: "2K+",  l: "PASSIONNÉS" },
-            { n: "14",   l: "VILLES" },
-            { n: "4.9★", l: "NOTE" },
-            { n: "70%",  l: "REVENUS COACH" },
-          ]).map((item, i) => (
-            <span key={i} className="inline-flex items-center gap-6 px-8">
-              <span className="font-display text-2xl text-[#FF7A00] leading-none">{item.n}</span>
-              <span className="font-display-md text-sm text-[#555] tracking-widest">{item.l}</span>
-              <span className="text-[#333] text-xl">·</span>
-            </span>
-          ))}
+      {sessions.length > 0 && (
+        <div className="bg-[#111] border-b border-[#2a2a2a] overflow-hidden py-3">
+          <div className="animate-ticker whitespace-nowrap">
+            {[...Array(2)].flatMap(() => [
+              { n: String(sessions.length), l: sessions.length > 1 ? "SESSIONS" : "SESSION" },
+              { n: String(categories.length), l: categories.length > 1 ? "CATÉGORIES" : "CATÉGORIE" },
+              { n: "70%",  l: "REVENUS COACH" },
+            ]).map((item, i) => (
+              <span key={i} className="inline-flex items-center gap-6 px-8">
+                <span className="font-display text-2xl text-[#FF7A00] leading-none">{item.n}</span>
+                <span className="font-display-md text-sm text-[#555] tracking-widest">{item.l}</span>
+                <span className="text-[#333] text-xl">·</span>
+              </span>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ── CONTENU PRINCIPAL ── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 pb-24">
