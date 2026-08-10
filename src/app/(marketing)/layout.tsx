@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { MarketingNav } from "@/components/marketing/marketing-nav";
+import { MarketingFooter } from "@/components/marketing/marketing-footer";
 
 async function getUserRole(userId: string | null) {
   if (!userId) return null;
@@ -31,6 +32,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
         isParticipant={isParticipant}
       />
       {children}
+      <MarketingFooter />
     </>
   );
 }
