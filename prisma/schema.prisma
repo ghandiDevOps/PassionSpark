@@ -296,7 +296,7 @@ model Payout {
 model AuditLog {
   id          String   @id @default(uuid())
   adminId     String
-  action      String   // BAN_USER, UNBAN_USER, CHANGE_ROLE, CANCEL_SESSION, UNPUBLISH_SESSION, REFUND_BOOKING
+  action      String   // BAN_USER, UNBAN_USER, CHANGE_ROLE, CANCEL_SESSION, UNPUBLISH_SESSION, PUBLISH_SESSION, REFUND_BOOKING
   targetType  String   // user | session | booking
   targetId    String
   metadata    Json?    // { reason, oldValue, newValue, ... }

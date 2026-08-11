@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   // Upsert user depuis Clerk si absent en base (webhook manqué)
   let user = await db.user.findUnique({
     where: { clerkId: userId },
-    select: { id: true, role: true, coachProfile: { select: { id: true } } },
+    select: { id: true, role: true, bannedAt: true, coachProfile: { select: { id: true } } },
   });
 
   if (!user) {
@@ -38,10 +38,15 @@ export async function POST(req: NextRequest) {
       where:  { clerkId: userId },
       update: { email, name, avatarUrl: clerkUser.imageUrl },
       create: { clerkId: userId, email, name, avatarUrl: clerkUser.imageUrl, role: "participant" },
-      select: { id: true, role: true, coachProfile: { select: { id: true } } },
+      select: { id: true, role: true, bannedAt: true, coachProfile: { select: { id: true } } },
     });
     user = created;
-    console.log(`[Onboarding] Auto-created user from Clerk: ${userId}`);
+  }
+
+  // Un compte banni ne doit pas pouvoir se ré-élever au rôle coach en
+  // rejouant l'onboarding — le ban serait contourné en une requête.
+  if (user.bannedAt) {
+    return NextResponse.json({ error: "ACCOUNT_BANNED" }, { status: 403 });
   }
 
   const { domains, bio } = parsed.data;

@@ -6,6 +6,7 @@ export type AuditAction =
   | "CHANGE_ROLE"
   | "CANCEL_SESSION"
   | "UNPUBLISH_SESSION"
+  | "PUBLISH_SESSION"
   | "REFUND_BOOKING"
   | "DELETE_REVIEW";
 

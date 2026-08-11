@@ -1,7 +1,10 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-const isAdminRoute = createRouteMatcher(["/admin(.*)"]);
+// `/api/admin(.*)` en plus des pages : chaque handler admin recheck déjà le
+// rôle en DB, mais on force auth() au niveau middleware pour éviter qu'une
+// future route admin oubliée puisse être hit sans session Clerk.
+const isAdminRoute = createRouteMatcher(["/admin(.*)", "/api/admin(.*)"]);
 
 const isCoachRoute = createRouteMatcher([
   "/dashboard(.*)",

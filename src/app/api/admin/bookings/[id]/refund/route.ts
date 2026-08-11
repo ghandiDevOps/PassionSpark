@@ -55,11 +55,16 @@ export async function POST(
       return NextResponse.json({ error: "NO_CHARGE_FOUND" }, { status: 422 });
     }
 
-    // Créer le remboursement Stripe
-    await stripe.refunds.create({
-      charge: chargeId,
-      reason: "requested_by_customer",
-    });
+    // Créer le remboursement Stripe.
+    // idempotencyKey = bookingId : double-clic admin ou retry réseau ne
+    // crée pas deux Refund objects distincts (Stripe déduplique côté API).
+    await stripe.refunds.create(
+      {
+        charge: chargeId,
+        reason: "requested_by_customer",
+      },
+      { idempotencyKey: `refund:${bookingId}` },
+    );
 
     // Marquer en base
     await db.booking.update({
@@ -83,8 +88,10 @@ export async function POST(
 
     return NextResponse.json({ ok: true });
   } catch (err) {
+    // Ne pas renvoyer err.message au client : les messages Stripe peuvent
+    // contenir des IDs internes, des paramètres de request, etc. Log complet
+    // côté serveur seulement.
     console.error("[Admin] Refund failed:", err);
-    const message = err instanceof Error ? err.message : "Stripe refund failed";
-    return NextResponse.json({ error: "STRIPE_ERROR", message }, { status: 500 });
+    return NextResponse.json({ error: "STRIPE_ERROR" }, { status: 500 });
   }
 }

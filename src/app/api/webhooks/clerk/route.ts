@@ -97,19 +97,24 @@ async function handleUserCreated(data: ClerkUserData) {
       ...fields,
     },
   });
-
-  console.log(`[Clerk] User created: ${data.id}`);
 }
 
 async function handleUserUpdated(data: ClerkUserData) {
-  const fields = extractUserFields(data);
+  const { email, emailVerified, name, avatarUrl } = extractUserFields(data);
+
+  // Un email non-vérifié ne doit jamais écraser un email existant :
+  // sinon un attaquant qui ajoute une adresse non-confirmée sur son compte
+  // Clerk peut détourner l'identité (ex : Reviews IDOR sur participantEmail,
+  // Stripe Connect créé sur le nouvel email…). On garde donc l'ancien email
+  // tant que la nouvelle valeur n'est pas confirmée par Clerk.
+  const data_ = emailVerified
+    ? { email, emailVerified, name, avatarUrl }
+    : { name, avatarUrl };
 
   await db.user.updateMany({
     where: { clerkId: data.id },
-    data:  fields,
+    data:  data_,
   });
-
-  console.log(`[Clerk] User updated: ${data.id}`);
 }
 
 async function handleUserDeleted(clerkId: string) {
@@ -117,6 +122,4 @@ async function handleUserDeleted(clerkId: string) {
     where: { clerkId },
     data:  { deletedAt: new Date() },
   });
-
-  console.log(`[Clerk] User soft-deleted: ${clerkId}`);
 }

@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   // Vérifier que le booking appartient bien à cet utilisateur
   const dbUser = await db.user.findUnique({
     where:  { clerkId: userId },
-    select: { id: true, email: true },
+    select: { id: true, email: true, emailVerified: true },
   });
   if (!dbUser) return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404 });
 
@@ -33,8 +33,13 @@ export async function POST(req: NextRequest) {
 
   if (!booking) return NextResponse.json({ error: "Réservation introuvable" }, { status: 404 });
 
-  // Ownership check
-  const owns = booking.userId === dbUser.id || booking.participantEmail === dbUser.email;
+  // Ownership : booking.userId direct, OU email match si l'email Clerk est
+  // vérifié (sinon un attaquant crée un compte Clerk avec l'email d'un guest
+  // et review à sa place). Depuis fix `webhooks/clerk`, dbUser.email n'est
+  // écrit que si Clerk a confirmé la possession de l'adresse.
+  const owns =
+    booking.userId === dbUser.id ||
+    (dbUser.emailVerified && booking.participantEmail === dbUser.email);
   if (!owns) return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
 
   // Pas deux fois

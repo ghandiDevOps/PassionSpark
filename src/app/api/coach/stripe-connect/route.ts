@@ -25,6 +25,13 @@ export async function POST() {
     let stripeAccountId = user.coachProfile.stripeAccountId;
 
     if (!stripeAccountId) {
+      // Un compte Stripe Connect est lié à un email : on n'en crée pas
+      // tant que Clerk n'a pas confirmé la possession de l'adresse
+      // (sinon un attaquant qui ajoute un email non-vérifié sur son
+      // compte peut se faire attribuer un Stripe account à cet email).
+      if (!user.emailVerified) {
+        return Response.json({ error: "EMAIL_NOT_VERIFIED" }, { status: 403 });
+      }
       const account = await createConnectAccount(user.email);
       stripeAccountId = account.id;
 

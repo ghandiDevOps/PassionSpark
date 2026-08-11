@@ -100,10 +100,10 @@ export async function POST(
       });
       await logAudit({
         adminId: admin.id,
-        action: "UNPUBLISH_SESSION",
+        action: "PUBLISH_SESSION",
         targetType: "session",
         targetId: sessionId,
-        metadata: { title: session.title, action: "published_by_admin" },
+        metadata: { title: session.title },
         ip,
       });
       return NextResponse.json({ ok: true });

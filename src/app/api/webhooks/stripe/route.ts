@@ -21,6 +21,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
+  // Défense en profondeur : un secret webhook est déjà lié à un mode (test/live),
+  // donc une mauvaise signature filtre déjà le cross-mode — mais si un secret
+  // test venait à être réutilisé par erreur en prod, cette assertion refuse
+  // explicitement les events test-mode en production.
+  const expectedLive = process.env.NODE_ENV === "production";
+  if (event.livemode !== expectedLive) {
+    console.error(`[Stripe Webhook] livemode mismatch: got ${event.livemode}, expected ${expectedLive}`);
+    return NextResponse.json({ error: "MODE_MISMATCH" }, { status: 400 });
+  }
+
   try {
     switch (event.type) {
 
