@@ -98,7 +98,7 @@ async function handleUserCreated(data: ClerkUserData) {
     },
   });
 
-  console.log(`[Clerk] User created: ${fields.email}`);
+  console.log(`[Clerk] User created: ${data.id}`);
 }
 
 async function handleUserUpdated(data: ClerkUserData) {
@@ -109,7 +109,7 @@ async function handleUserUpdated(data: ClerkUserData) {
     data:  fields,
   });
 
-  console.log(`[Clerk] User updated: ${fields.email}`);
+  console.log(`[Clerk] User updated: ${data.id}`);
 }
 
 async function handleUserDeleted(clerkId: string) {

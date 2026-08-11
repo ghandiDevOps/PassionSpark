@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
       select: { id: true, role: true, coachProfile: { select: { id: true } } },
     });
     user = created;
-    console.log(`[Onboarding] Auto-created user from Clerk: ${email}`);
+    console.log(`[Onboarding] Auto-created user from Clerk: ${userId}`);
   }
 
   const { domains, bio } = parsed.data;

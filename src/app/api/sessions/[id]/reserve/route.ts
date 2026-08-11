@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { createPaymentIntent } from "@/lib/stripe";
 import { generateQrToken } from "@/lib/utils/generate-qr-token";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const schema = z.object({
   name:  z.string().min(2),
@@ -13,6 +14,14 @@ export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } },
 ) {
+  const { ok } = checkRateLimit(`reserve:${getClientIp(req)}`, { limit: 10, windowMs: 60_000 });
+  if (!ok) {
+    return NextResponse.json(
+      { error: "Trop de tentatives, réessaie dans une minute.", code: "RATE_LIMITED" },
+      { status: 429 },
+    );
+  }
+
   let bookingId: string | null  = null;
   let sessionId: string | null  = null;
 
