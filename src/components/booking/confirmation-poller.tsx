@@ -1,19 +1,22 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useState } from "react";
-import { QRCodeSVG } from "qrcode.react";
+import { useRouter } from "next/navigation";
 
 interface Props {
   bookingId: string;
   participantName: string;
 }
 
-// Affiche un spinner tant que le booking est "pending", puis le QR dès "confirmed"
+// Affiche un spinner tant que le booking est "pending", puis déclenche un
+// router.refresh() dès "confirmed" — la page de confirmation (Server Component)
+// re-fetch alors le booking et affiche le vrai QR. Cet endpoint ne renvoie jamais
+// le qrToken lui-même (voir api/bookings/[id]/status/route.ts).
 // Gère la fenêtre entre le redirect Stripe et le traitement du webhook (~1-3s)
 export function ConfirmationPoller({ bookingId, participantName }: Props) {
-  const [qrToken, setQrToken]   = useState<string | null>(null);
-  const [failed, setFailed]     = useState(false);
-  const MAX_ATTEMPTS             = 12; // 12 × 1s = 12s max
+  const router               = useRouter();
+  const [failed, setFailed]  = useState(false);
+  const MAX_ATTEMPTS          = 12; // 12 × 1s = 12s max
 
   useEffect(() => {
     let attempts = 0;
@@ -25,7 +28,7 @@ export function ConfirmationPoller({ bookingId, participantName }: Props) {
         const data = await res.json();
 
         if (data.status === "confirmed" || data.status === "attended") {
-          setQrToken(data.qrToken);
+          router.refresh();
           return;
         }
       } catch {
@@ -41,7 +44,7 @@ export function ConfirmationPoller({ bookingId, participantName }: Props) {
     };
 
     poll();
-  }, [bookingId]);
+  }, [bookingId, router]);
 
   if (failed) {
     return (
@@ -58,30 +61,13 @@ export function ConfirmationPoller({ bookingId, participantName }: Props) {
     );
   }
 
-  if (!qrToken) {
-    return (
-      <div className="flex flex-col items-center space-y-4">
-        <div className="bg-[#1e1e1e] border border-[#2a2a2a] rounded-xl p-8 flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-2 border-[#FF7A00] border-t-transparent rounded-full animate-spin" />
-          <p className="text-[#888] text-sm">Génération de ton QR code…</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex flex-col items-center space-y-3">
-      <div className="bg-white rounded-xl p-5 shadow-sm">
-        <QRCodeSVG
-          value={qrToken}
-          size={200}
-          level="H"
-          includeMargin
-        />
+    <div className="flex flex-col items-center space-y-4">
+      <div className="bg-[#1e1e1e] border border-[#2a2a2a] rounded-xl p-8 flex flex-col items-center gap-4">
+        <div className="w-10 h-10 border-2 border-[#FF7A00] border-t-transparent rounded-full animate-spin" />
+        <p className="text-[#888] text-sm">Génération de ton QR code…</p>
       </div>
-      <p className="text-sm text-[#888] text-center">
-        Montre ce QR code à l&apos;entrée — {participantName}
-      </p>
+      <p className="text-xs text-[#555] text-center">{participantName}</p>
     </div>
   );
 }
