@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import Link from "next/link";
 import { formatPrice } from "@/lib/utils/format-price";
 import { formatSessionDateTime } from "@/lib/utils/format-date";
+import { StripeConnectButton } from "@/components/coach/stripe-connect-button";
 
 export const metadata = { title: "Dashboard · Passion Spark" };
 
@@ -129,12 +130,7 @@ export default async function DashboardPage() {
               Finalise ton compte Stripe pour recevoir tes revenus
             </p>
           </div>
-          <Link
-            href="/onboarding"
-            className="font-display-md text-[10px] tracking-[0.2em] text-[#FF7A00] border border-[#FF7A00]/40 px-4 py-2 hover:bg-[#FF7A00]/10 transition-colors shrink-0"
-          >
-            ACTIVER →
-          </Link>
+          <StripeConnectButton incomplete={cp.stripeOnboardingStatus === "pending"} />
         </div>
       )}
 

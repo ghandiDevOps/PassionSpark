@@ -10,7 +10,7 @@ export const APP_NAME = "Passion Spark";
 export const APP_URL  = process.env.NEXT_PUBLIC_APP_URL ?? "https://passionspark.fr";
 
 // ─── Session ─────────────────────────────────────────────────────────────────
-export const MIN_SPOTS = 10;
+export const MIN_SPOTS = 2;
 export const MAX_SPOTS = 20;
 export const DURATION_OPTIONS = [60, 120] as const;
 

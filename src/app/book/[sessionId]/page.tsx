@@ -1,68 +1,66 @@
-﻿"use client";
-
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-
-const schema = z.object({
-  name:  z.string().min(2, "Ton prénom doit faire au moins 2 caractères"),
-  email: z.string().email("Adresse email invalide"),
-});
-
-type FormData = z.infer<typeof schema>;
+import { notFound } from "next/navigation";
+import { db } from "@/lib/db";
+import Link from "next/link";
+import { formatSessionDateTime } from "@/lib/utils/format-date";
+import { formatPrice } from "@/lib/utils/format-price";
+import { BookingForm } from "./booking-form";
 
 interface Props {
   params: { sessionId: string };
 }
 
-export default function BookingPage({ params }: Props) {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+// ── Écran : session non disponible au paiement ────────────────────────────
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isValid },
-  } = useForm<FormData>({ resolver: zodResolver(schema), mode: "onChange" });
+function StripeNotReadyScreen({ sessionTitle }: { sessionTitle: string }) {
+  return (
+    <main className="min-h-screen bg-[#1a1a1a] flex flex-col items-center justify-center px-4 text-center">
+      <div className="w-1 h-12 bg-[#FF7A00] mx-auto mb-8" />
+      <p className="font-display text-5xl mb-4">⏳</p>
+      <h1 className="font-display text-2xl sm:text-3xl text-white mb-3 max-w-md">
+        BIENTÔT DISPONIBLE
+      </h1>
+      <p className="text-[#888] text-sm font-sans mb-2 max-w-sm">
+        Le coach n&apos;a pas encore activé les paiements pour cette session.
+      </p>
+      <p className="text-[#555] text-xs font-sans mb-8 max-w-sm">
+        Session : {sessionTitle}
+      </p>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <Link href="/explore" className="font-display-md text-xs tracking-[0.2em] border border-[#FF7A00]/40 text-[#FF7A00] px-8 py-3 hover:bg-[#FF7A00]/10 transition-colors">
+          EXPLORER D&apos;AUTRES SESSIONS
+        </Link>
+      </div>
+    </main>
+  );
+}
 
-  const onSubmit = async (data: FormData) => {
-    setIsLoading(true);
-    setError(null);
+// ── Page principale ───────────────────────────────────────────────────────
 
-    try {
-      const res = await fetch(`/api/sessions/${params.sessionId}/reserve`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
+export default async function BookingPage({ params }: Props) {
+  const session = await db.session.findUnique({
+    where: { id: params.sessionId },
+    include: { coach: true },
+  });
 
-      const json = await res.json();
+  // Session introuvable ou non publiée → 404
+  if (!session || (session.status !== "published" && session.status !== "full")) {
+    notFound();
+  }
 
-      if (!res.ok) {
-        setError(json.error ?? "Une erreur est survenue. Réessaie.");
-        return;
-      }
+  // Plus de places disponibles
+  const isFull = session.status === "full";
 
-      router.push(
-        `/book/${params.sessionId}/payment?client_secret=${json.clientSecret}&booking_id=${json.bookingId}&amount=${json.amountCents}`,
-      );
-    } catch {
-      setError("Problème de connexion. Réessaie dans un instant.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // Guard : le coach n'a pas encore connecté Stripe
+  if (!session.coach.stripeAccountId) {
+    return <StripeNotReadyScreen sessionTitle={session.title} />;
+  }
 
   return (
     <main className="min-h-screen bg-[#1a1a1a]">
       <div className="page-container pt-10">
         <div className="space-y-8">
 
+          {/* En-tête */}
           <div className="space-y-2">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-1 h-5 bg-[#FF7A00]" />
@@ -76,42 +74,33 @@ export default function BookingPage({ params }: Props) {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <Input
-              label="Ton prénom"
-              placeholder="Léa"
-              autoComplete="given-name"
-              autoFocus
-              error={errors.name?.message}
-              {...register("name")}
-            />
-            <Input
-              label="Ton email"
-              type="email"
-              placeholder="toi@email.com"
-              autoComplete="email"
-              error={errors.email?.message}
-              hint="Tu recevras ton QR code ici"
-              {...register("email")}
-            />
-
-            {error && (
-              <div className="bg-[#FF3D00]/10 border border-[#FF3D00]/30 p-4">
-                <p className="text-sm text-[#FF3D00]">{error}</p>
-              </div>
-            )}
-
-            <div className="pt-4">
-              <Button
-                type="submit"
-                loading={isLoading}
-                disabled={!isValid}
-                fullWidth
-              >
-                Continuer vers le paiement →
-              </Button>
+          {/* Récap session */}
+          <div className="bg-[#1e1e1e] border border-[#2a2a2a] p-4 space-y-2 text-sm">
+            <p className="font-display text-white truncate">{session.title}</p>
+            <p className="text-[#888] capitalize">
+              📅 {formatSessionDateTime(session.dateStart, session.durationMin)}
+            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-[#888]">📍 {session.locationAddress}</p>
+              <p className="font-display text-[#FF7A00] text-lg">{formatPrice(session.priceCents)}</p>
             </div>
-          </form>
+            {isFull && (
+              <p className="text-[#FF3D00] text-xs font-display-md tracking-widest">COMPLET</p>
+            )}
+          </div>
+
+          {/* Formulaire ou message "complet" */}
+          {isFull ? (
+            <div className="bg-[#FF3D00]/10 border border-[#FF3D00]/30 p-6 text-center space-y-3">
+              <p className="font-display text-2xl text-white">SESSION COMPLÈTE</p>
+              <p className="text-[#888] text-sm">Il n&apos;y a plus de place disponible.</p>
+              <Link href="/explore" className="inline-block font-display-md text-xs tracking-[0.2em] text-[#FF7A00] hover:underline">
+                EXPLORER D&apos;AUTRES SESSIONS →
+              </Link>
+            </div>
+          ) : (
+            <BookingForm sessionId={params.sessionId} />
+          )}
 
           <p className="text-xs text-center text-[#555]">
             En continuant, tu acceptes les{" "}
@@ -122,6 +111,7 @@ export default function BookingPage({ params }: Props) {
             </a>
             .
           </p>
+
         </div>
       </div>
     </main>

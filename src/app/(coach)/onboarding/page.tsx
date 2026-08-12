@@ -237,7 +237,7 @@ export default function OnboardingPage() {
               {[
                 { n: "3 min", label: "pour créer une session",     done: false },
                 { n: "70%",   label: "des revenus pour toi",        done: false },
-                { n: "10–20", label: "participants par session",    done: false },
+                { n: "2–20",  label: "participants par session",    done: false },
               ].map(({ n, label }) => (
                 <div key={label} className="flex items-center gap-4 px-4 py-3" style={{ backgroundColor: "var(--color-bg-card)" }}>
                   <span className="font-display text-2xl text-[#FF7A00] w-14 shrink-0">{n}</span>
