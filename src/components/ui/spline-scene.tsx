@@ -3,9 +3,10 @@
 import { Suspense, lazy } from 'react'
 
 // Graceful fallback — if the Spline CDN fails to load, render nothing instead of crashing
-const Spline = lazy(() =>
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const Spline = lazy<any>(() =>
   import('@splinetool/react-spline').catch(() => ({
-    default: () => null as unknown as React.ReactElement,
+    default: function SplineFallback() { return null },
   }))
 )
 
