@@ -91,7 +91,7 @@ export function useSessionForm() {
       const json = await res.json();
 
       if (!res.ok) { setError(json.error ?? 'Une erreur est survenue.'); return; }
-      router.push(`/s/${json.session.slug}`);
+      router.push(`/sessions/${json.session.id}?created=1`);
     } catch {
       setError('Erreur réseau. Réessaie.');
     } finally {
