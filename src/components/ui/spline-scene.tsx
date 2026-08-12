@@ -1,19 +1,23 @@
 'use client'
 
 import { Suspense, lazy } from 'react'
-
-// Graceful fallback — if the Spline CDN fails to load, render nothing instead of crashing
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Spline = lazy<any>(() =>
-  import('@splinetool/react-spline').catch(() => ({
-    default: function SplineFallback() { return null },
-  }))
-)
+import type { ComponentType } from 'react'
 
 interface SplineSceneProps {
   scene: string
   className?: string
 }
+
+// Graceful fallback — if the Spline CDN fails to load, render nothing instead of crashing.
+// We cast the Promise to the correct ComponentType shape so TypeScript accepts the JSX props.
+const Spline = lazy(
+  () =>
+    (import('@splinetool/react-spline').catch(() => ({
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      default: function SplineFallback(_props: SplineSceneProps) { return null },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    })) as any) as Promise<{ default: ComponentType<SplineSceneProps> }>
+)
 
 export function SplineScene({ scene, className }: SplineSceneProps) {
   return (
