@@ -2,7 +2,12 @@
 
 import { Suspense, lazy } from 'react'
 
-const Spline = lazy(() => import('@splinetool/react-spline'))
+// Graceful fallback — if the Spline CDN fails to load, render nothing instead of crashing
+const Spline = lazy(() =>
+  import('@splinetool/react-spline').catch(() => ({
+    default: () => null as unknown as React.ReactElement,
+  }))
+)
 
 interface SplineSceneProps {
   scene: string

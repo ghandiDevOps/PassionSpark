@@ -4,13 +4,17 @@ import { motion } from "framer-motion";
 import { useTranslation } from "@/i18n/useTranslation";
 import type { Locale } from "@/i18n/translations";
 
-const LOCALES: { code: Locale; label: string }[] = [
+// EN is translated but not yet shipped — hide it until the full EN experience is validated
+const LOCALES: { code: Locale; label: string; comingSoon?: boolean }[] = [
   { code: "fr", label: "FR" },
-  { code: "en", label: "EN" },
+  // { code: "en", label: "EN" },  // re-enable when EN is ready
 ];
 
 export function LanguageSwitcher() {
   const { locale, setLocale } = useTranslation();
+
+  // Only one locale active for now — don't render the switcher at all
+  if (LOCALES.length <= 1) return null;
 
   return (
     <div className="flex border border-[#E5E5E5] dark:border-[#2a2a2a]">

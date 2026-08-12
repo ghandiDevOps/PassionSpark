@@ -18,7 +18,7 @@ const securityHeaders = [
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://*.clerk.accounts.dev https://*.clerk.com https://clerk.passionspark.fr https://challenges.cloudflare.com https://prod.spline.design https://va.vercel-scripts.com",
       "style-src 'self' 'unsafe-inline'",
       "font-src 'self' data:",
-      "img-src 'self' data: blob: https://*.supabase.co https://img.clerk.com https://*.clerk.com https://images.unsplash.com https://images.pexels.com",
+      "img-src 'self' data: blob: https://*.supabase.co https://img.clerk.com https://*.clerk.com",
       "connect-src 'self' https://api.stripe.com https://*.supabase.co wss://*.supabase.co https://*.clerk.accounts.dev https://*.clerk.com https://clerk.passionspark.fr https://api-adresse.data.gouv.fr https://prod.spline.design https://vitals.vercel-insights.com",
       "frame-src https://js.stripe.com https://*.clerk.accounts.dev https://*.clerk.com https://challenges.cloudflare.com",
       "worker-src 'self' blob:",
