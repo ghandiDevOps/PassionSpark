@@ -46,14 +46,14 @@ export function MarketingNav({ isSignedIn, isCoach, isParticipant }: Props) {
               >
                 {t("nav.sign_in")}
               </Link>
-              <Link href="/sign-up" className="btn-passion text-sm px-5 py-2.5 min-h-0">
+              <Link href="/sign-up" className="btn-passion text-black text-sm px-5 py-2.5 min-h-0">
                 {t("nav.become_coach")}
               </Link>
             </>
           )}
 
           {isCoach && (
-            <Link href="/dashboard" className="btn-passion text-sm px-5 py-2.5 min-h-0">
+            <Link href="/dashboard" className="btn-passion text-black text-sm px-5 py-2.5 min-h-0">
               {t("nav.my_space_coach")}
             </Link>
           )}
@@ -67,7 +67,7 @@ export function MarketingNav({ isSignedIn, isCoach, isParticipant }: Props) {
               >
                 {t("nav.my_bookings")}
               </Link>
-              <Link href="/my" className="btn-passion text-sm px-5 py-2.5 min-h-0">
+              <Link href="/my" className="btn-passion text-black text-sm px-5 py-2.5 min-h-0">
                 {t("nav.my_profile")}
               </Link>
             </>
@@ -88,18 +88,18 @@ export function MarketingNav({ isSignedIn, isCoach, isParticipant }: Props) {
               >
                 {t("nav.sign_in")}
               </Link>
-              <Link href="/sign-up" className="btn-passion text-xs px-3 py-2 min-h-0">
+              <Link href="/sign-up" className="btn-passion text-black text-xs px-3 py-2 min-h-0">
                 {t("nav.coach")}
               </Link>
             </>
           )}
           {isCoach && (
-            <Link href="/dashboard" className="btn-passion text-xs px-3 py-2 min-h-0">
+            <Link href="/dashboard" className="btn-passion text-black text-xs px-3 py-2 min-h-0">
               {t("nav.my_space_short")}
             </Link>
           )}
           {isParticipant && (
-            <Link href="/my/bookings" className="btn-passion text-xs px-3 py-2 min-h-0">
+            <Link href="/my/bookings" className="btn-passion text-black text-xs px-3 py-2 min-h-0">
               {t("nav.my_bookings_emoji")}
             </Link>
           )}
