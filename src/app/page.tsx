@@ -23,10 +23,10 @@ const GLOBAL_STYLES = `
     from { transform: translateX(-50%); }
     to   { transform: translateX(0); }
   }
-  .marquee-fwd { animation: marquee-fwd 30s linear infinite; }
-  .marquee-rev { animation: marquee-rev 38s linear infinite; }
+  .marquee-fwd { animation: marquee-fwd 30s linear infinite; animation-play-state: paused; }
+  .marquee-rev { animation: marquee-rev 38s linear infinite; animation-play-state: paused; }
   .marquee-wrap:hover .marquee-fwd,
-  .marquee-wrap:hover .marquee-rev { animation-play-state: paused; }
+  .marquee-wrap:hover .marquee-rev { animation-play-state: running; }
   .flame-gradient {
     background: linear-gradient(135deg, #FFB700, #FF7A00, #FF3D00);
   }
@@ -36,8 +36,20 @@ const GLOBAL_STYLES = `
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
+  @keyframes particle-float {
+    0%, 100% { transform: translateY(0) scale(0.5); opacity: 0; }
+    50%      { transform: translateY(-20px) scale(1); opacity: 0.6; }
+  }
+  .particle-dot {
+    opacity: 0;
+    animation-name: particle-float;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-play-state: paused;
+  }
+  .cta-hover-zone:hover .particle-dot { animation-play-state: running; }
   @media (prefers-reduced-motion: reduce) {
-    .marquee-fwd, .marquee-rev { animation: none !important; }
+    .marquee-fwd, .marquee-rev, .particle-dot { animation: none !important; }
   }
 `;
 
@@ -628,7 +640,7 @@ function SiteV2({
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="w-[80vw] h-[80vw] max-w-[800px] max-h-[800px] rounded-full opacity-[0.08] dark:opacity-[0.05] blur-[100px] bg-[#FF7A00]" />
           </div>
-          <FadeUp className="relative z-10 max-w-4xl mx-auto text-center">
+          <FadeUp className="relative z-10 max-w-4xl mx-auto text-center cta-hover-zone">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -663,12 +675,15 @@ function SiteV2({
               </div>
             </motion.div>
             {[...Array(6)].map((_, i) => (
-              <motion.div
+              <div
                 key={i}
-                className="absolute w-1 h-1 rounded-full bg-[#FF7A00]"
-                style={{ left: `${15 + i * 14}%`, top: `${20 + (i % 3) * 25}%` }}
-                animate={{ y: [-10, -30, -10], opacity: [0, 0.6, 0], scale: [0.5, 1, 0.5] }}
-                transition={{ duration: 2.5 + i * 0.5, repeat: Infinity, delay: i * 0.4, ease: "easeInOut" }}
+                className="particle-dot absolute w-1 h-1 rounded-full bg-[#FF7A00] pointer-events-none"
+                style={{
+                  left: `${15 + i * 14}%`,
+                  top: `${20 + (i % 3) * 25}%`,
+                  animationDuration: `${2.5 + i * 0.5}s`,
+                  animationDelay: `${i * 0.4}s`,
+                }}
               />
             ))}
           </FadeUp>
