@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type Step = 1 | 2 | 3;
 
@@ -21,13 +21,139 @@ const STEPS = [
   { n: 3, label: "Go !"    },
 ];
 
-export default function OnboardingPage() {
+// ── Bouton Stripe (appel API interne) ────────────────────────────────────────
+function ActivateStripeButton({ label = "ACTIVER STRIPE ET RECEVOIR VOS PAIEMENTS →" }: { label?: string }) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError]     = useState<string | null>(null);
+
+  async function handleActivate() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res  = await fetch("/api/coach/stripe-connect", { method: "POST" });
+      const data = await res.json();
+
+      if (res.ok && data.url) {
+        window.location.href = data.url;
+        return;
+      }
+      if (data.error === "EMAIL_NOT_VERIFIED") {
+        setError("Vérifie ton adresse email avant d'activer les paiements.");
+      } else {
+        setError("Impossible de lancer l'activation. Réessaie dans un instant.");
+      }
+    } catch {
+      setError("Erreur réseau. Réessaie dans un instant.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      <button
+        onClick={handleActivate}
+        disabled={loading}
+        className="w-full font-display-md text-[11px] tracking-[0.2em] text-black py-5 flame-gradient hover:opacity-90 transition-opacity disabled:opacity-50 pulse-orange"
+      >
+        {loading ? "CONNEXION À STRIPE…" : label}
+      </button>
+      {error && (
+        <p className="text-xs text-[#FF3D00] font-sans text-center">{error}</p>
+      )}
+    </div>
+  );
+}
+
+// ── Écran retour Stripe (success ou refresh) ─────────────────────────────────
+function StripeReturnScreen({ success }: { success: boolean }) {
   const router = useRouter();
+  return (
+    <main className="min-h-screen" style={{ background: "var(--color-bg)" }}>
+      <div className="max-w-md mx-auto px-5 pt-10 pb-20 space-y-8">
+
+        <div className="w-12 h-12 border-2 flex items-center justify-center"
+          style={{ borderColor: success ? "#10b981" : "#FF7A00" }}
+        >
+          {success ? (
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          ) : (
+            <span style={{ color: "#FF7A00", fontSize: 20 }}>↻</span>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <p className="font-display-md text-[10px] tracking-[0.3em]"
+            style={{ color: success ? "#10b981" : "#FF7A00" }}
+          >
+            {success ? "STRIPE ACTIVÉ" : "FINALISATION REQUISE"}
+          </p>
+          <h1 className="font-display leading-[0.9]" style={{ fontSize: "clamp(2rem, 8vw, 3rem)", color: "var(--color-text)" }}>
+            {success
+              ? <>PAIEMENTS<br /><span className="flame-text">ACTIVÉS !</span></>
+              : <>PRESQUE<br /><span className="flame-text">TERMINÉ.</span></>
+            }
+          </h1>
+          <p className="text-sm font-sans" style={{ color: "var(--color-muted)" }}>
+            {success
+              ? "Ton compte Stripe est configuré. Tu peux maintenant créer tes sessions et recevoir des paiements."
+              : "Ta session Stripe a expiré. Relance le processus pour finaliser la configuration."
+            }
+          </p>
+        </div>
+
+        {success ? (
+          <div className="space-y-3">
+            <button
+              onClick={() => router.push("/sessions/new")}
+              className="w-full font-display-md text-[11px] tracking-[0.2em] text-black py-5 flame-gradient hover:opacity-90 transition-opacity"
+            >
+              CRÉER MA PREMIÈRE SESSION →
+            </button>
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="w-full text-sm font-sans py-2 transition-colors"
+              style={{ color: "var(--color-muted)" }}
+            >
+              Voir mon dashboard
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <ActivateStripeButton label="REPRENDRE LA CONFIGURATION STRIPE →" />
+            <button
+              onClick={() => router.push("/dashboard")}
+              className="w-full text-sm font-sans py-2 transition-colors"
+              style={{ color: "var(--color-muted)" }}
+            >
+              Continuer sans Stripe pour l'instant
+            </button>
+          </div>
+        )}
+      </div>
+    </main>
+  );
+}
+
+// ── Page principale (avec lecture des searchParams) ──────────────────────────
+function OnboardingContent() {
+  const router       = useRouter();
+  const searchParams = useSearchParams();
+
   const [step, setStep]               = useState<Step>(1);
   const [selectedDomain, setDomain]   = useState<string>("");
   const [bio, setBio]                 = useState("");
   const [isSubmitting, setSubmitting] = useState(false);
   const [error, setError]             = useState<string | null>(null);
+
+  // Retour depuis Stripe → affiche l'écran approprié
+  const stripeSuccess = searchParams.get("stripe_success") === "true";
+  const stripeRefresh = searchParams.get("stripe_refresh") === "true";
+
+  if (stripeSuccess) return <StripeReturnScreen success={true} />;
+  if (stripeRefresh)  return <StripeReturnScreen success={false} />;
 
   // ── Étape 2 : sauvegarder le profil ──────────────────────────────────────
   async function saveProfile() {
@@ -211,11 +337,11 @@ export default function OnboardingPage() {
         )}
 
         {/* ════════════════════════════════════════
-            ÉTAPE 3 — Go ! Créer la première session
+            ÉTAPE 3 — Go ! + Activation Stripe
         ════════════════════════════════════════ */}
         {step === 3 && (
           <div className="space-y-8">
-            {/* Succès */}
+            {/* Succès profil */}
             <div className="space-y-3">
               <div className="w-12 h-12 border-2 border-[#FF7A00] flex items-center justify-center">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF7A00" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -225,19 +351,19 @@ export default function OnboardingPage() {
               <p className="font-display-md text-[10px] tracking-[0.3em] text-[#FF7A00]">PROFIL CRÉÉ</p>
               <h1 className="font-display leading-[0.9]" style={{ fontSize: "clamp(2rem, 8vw, 3rem)", color: "var(--color-text)" }}>
                 C'EST PARTI.<br />
-                <span className="flame-text">PREMIÈRE SESSION.</span>
+                <span className="flame-text">UNE ÉTAPE CLÉE.</span>
               </h1>
               <p className="text-sm font-sans" style={{ color: "var(--color-muted)" }}>
-                Crée ta première session maintenant — ça prend 3 minutes. Les paiements, tu les configures quand tu veux.
+                Active Stripe maintenant pour recevoir tes paiements dès ta première réservation. Ça prend 3 minutes.
               </p>
             </div>
 
-            {/* Ce qui t'attend */}
+            {/* Stats */}
             <div className="border divide-y" style={{ borderColor: "var(--color-border)" }}>
               {[
-                { n: "3 min", label: "pour créer une session",     done: false },
-                { n: "70%",   label: "des revenus pour toi",        done: false },
-                { n: "2–20",  label: "participants par session",    done: false },
+                { n: "70%",  label: "des revenus directement sur ton compte" },
+                { n: "3min", label: "pour configurer Stripe" },
+                { n: "2–20", label: "participants par session" },
               ].map(({ n, label }) => (
                 <div key={label} className="flex items-center gap-4 px-4 py-3" style={{ backgroundColor: "var(--color-bg-card)" }}>
                   <span className="font-display text-2xl text-[#FF7A00] w-14 shrink-0">{n}</span>
@@ -246,29 +372,27 @@ export default function OnboardingPage() {
               ))}
             </div>
 
-            {/* CTA principal */}
-            <div className="space-y-3">
-              <button
-                onClick={() => router.push("/sessions/new")}
-                className="w-full font-display-md text-[11px] tracking-[0.2em] text-black py-5 flame-gradient hover:opacity-90 transition-opacity pulse-orange"
-              >
-                CRÉER MA PREMIÈRE SESSION →
-              </button>
+            {/* CTA Stripe — PRIMARY */}
+            <ActivateStripeButton />
 
-              {/* Secondaire : aller au dashboard */}
-              <button
-                onClick={() => router.push("/dashboard")}
-                className="w-full text-sm font-sans py-2 transition-colors"
-                style={{ color: "var(--color-muted)" }}
-              >
-                Voir mon dashboard d'abord
-              </button>
+            {/* Séparateur */}
+            <div className="flex items-center gap-3">
+              <div className="h-px flex-1" style={{ backgroundColor: "var(--color-border)" }} />
+              <span className="font-display-md text-[9px] tracking-widest" style={{ color: "var(--color-muted)" }}>OU</span>
+              <div className="h-px flex-1" style={{ backgroundColor: "var(--color-border)" }} />
             </div>
 
-            {/* Note Stripe non-bloquante */}
-            <div className="border-l-2 border-[#FF7A00]/30 pl-4">
-              <p className="text-xs font-sans" style={{ color: "var(--color-muted)" }}>
-                Les paiements (Stripe) se configurent depuis ton dashboard — tu as le temps avant ta première session.
+            {/* CTA secondaire : créer session d'abord */}
+            <div className="space-y-2">
+              <button
+                onClick={() => router.push("/sessions/new")}
+                className="w-full font-display-md text-[10px] tracking-[0.2em] py-4 border transition-colors hover:border-[#FF7A00]/40 hover:text-[#FF7A00]"
+                style={{ borderColor: "var(--color-border)", color: "var(--color-muted)" }}
+              >
+                CRÉER UNE SESSION D'ABORD →
+              </button>
+              <p className="text-xs text-center font-sans" style={{ color: "var(--color-muted)" }}>
+                Tu pourras activer Stripe depuis ton dashboard avant ta première session.
               </p>
             </div>
           </div>
@@ -276,5 +400,14 @@ export default function OnboardingPage() {
 
       </div>
     </main>
+  );
+}
+
+// ── Export (Suspense requis pour useSearchParams) ────────────────────────────
+export default function OnboardingPage() {
+  return (
+    <Suspense>
+      <OnboardingContent />
+    </Suspense>
   );
 }

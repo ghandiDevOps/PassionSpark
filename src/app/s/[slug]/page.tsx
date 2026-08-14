@@ -51,135 +51,174 @@ export default async function SessionPage({ params }: Props) {
   const coachName = session.coach.user.name;
 
   return (
-    <main className="min-h-screen bg-[#1a1a1a]">
+    <main className="min-h-screen bg-[#0a0a0a]">
 
-      {/* ── Hero ── */}
-      <section className="px-4 pt-10 pb-8 border-b border-[#2a2a2a]">
-        <div className="max-w-lg mx-auto space-y-4">
-
-          {/* Nav retour */}
-          <Link href="/explore" className="font-display-md text-xs text-[#555] hover:text-[#FF7A00] transition-colors tracking-widest">
-            ← EXPLORER
-          </Link>
-
-          <SessionTypeBadge type={session.sessionType} />
-
-          <h1 className="font-display text-4xl sm:text-5xl text-white leading-none">
-            {session.title.toUpperCase()}
-          </h1>
-
-          {session.tagline && (
-            <p className="text-[#888] text-base leading-relaxed">
-              {session.tagline}
+      {/* ── Hero photo plein écran — style Manus "Atelier Minuit" ── */}
+      {session.coverImageUrl ? (
+        <section className="relative w-full aspect-[16/7] overflow-hidden">
+          <img
+            src={session.coverImageUrl}
+            alt={session.title}
+            className="w-full h-full object-cover"
+          />
+          {/* Overlay gradient */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/40 to-transparent" />
+          {/* Badge univers en haut gauche */}
+          <div className="absolute top-4 left-4 flex items-center gap-2">
+            <Link href="/explore" className="font-display-md text-xs text-white/60 hover:text-white transition-colors tracking-[0.15em] bg-black/30 backdrop-blur-sm px-3 py-1.5">
+              ← RETOUR
+            </Link>
+            <span className="font-display-md text-xs text-white tracking-[0.15em] bg-[#FF7A00] px-3 py-1.5">
+              {session.domain?.toUpperCase() ?? session.category.toUpperCase()}
+            </span>
+          </div>
+          {/* Titre en overlay bas */}
+          <div className="absolute bottom-6 left-6 right-6">
+            <p className="font-display-md text-xs text-[#FF7A00] tracking-[0.2em] mb-2">
+              {session.category.toUpperCase()} · {session.locationAddress.split(",").pop()?.trim().toUpperCase()}
             </p>
-          )}
+            <h1 className="font-display text-[clamp(2rem,5vw,4rem)] text-white leading-[0.88]">
+              {session.title}
+            </h1>
+          </div>
+        </section>
+      ) : (
+        /* Fallback sans photo */
+        <section className="pt-14 px-4 pb-8 border-b border-[#1e1e1e]">
+          <div className="max-w-lg mx-auto space-y-4 pt-6">
+            <Link href="/explore" className="font-display-md text-xs text-[#444] hover:text-[#FF7A00] transition-colors tracking-[0.15em]">
+              ← RETOUR AUX SESSIONS
+            </Link>
+            <p className="font-display-md text-xs text-[#FF7A00] tracking-[0.2em]">
+              {session.domain?.toUpperCase() ?? session.category.toUpperCase()}
+            </p>
+            <h1 className="font-display text-4xl sm:text-5xl text-white leading-[0.88]">
+              {session.title}
+            </h1>
+            {session.tagline && (
+              <p className="text-[#666] text-base leading-relaxed">{session.tagline}</p>
+            )}
+          </div>
+        </section>
+      )}
 
-          {/* Coach */}
-          <div className="flex items-center gap-3 pt-1">
+      {/* ── Contenu 2 colonnes — style Manus ── */}
+      <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grid lg:grid-cols-[1fr_360px] gap-12">
+
+        {/* ── Colonne gauche ── */}
+        <div className="space-y-8">
+
+          {/* Profil coach */}
+          <div className="flex items-start gap-4 pb-8 border-b border-[#1e1e1e]">
             {session.coach.user.avatarUrl ? (
               <img
                 src={session.coach.user.avatarUrl}
                 alt={coachName}
-                className="w-9 h-9 rounded-full object-cover border border-[#2a2a2a]"
+                className="w-12 h-12 rounded-full object-cover border border-[#2a2a2a] shrink-0"
               />
             ) : (
-              <div className="w-9 h-9 bg-[#FF7A00]/20 border border-[#FF7A00]/30 flex items-center justify-center text-[#FF7A00] font-bold text-sm">
+              <div className="w-12 h-12 bg-[#FF7A00]/20 border border-[#FF7A00]/30 flex items-center justify-center text-[#FF7A00] font-bold shrink-0">
                 {coachName[0]}
               </div>
             )}
             <div>
-              <p className="text-white font-semibold text-sm">{coachName}</p>
+              <p className="font-display-md text-xs text-[#444] tracking-[0.15em] mb-1">VOTRE COACH</p>
+              <p className="text-white font-semibold">{coachName}</p>
               {session.coach.avgRating > 0 && (
-                <p className="text-[#555] text-xs">
-                  ⭐ {session.coach.avgRating.toFixed(1)} · {session.coach.totalSessions} sessions
+                <p className="text-[#555] text-xs mt-1">
+                  ★ {session.coach.avgRating.toFixed(1)} · {session.coach.totalSessions} sessions
                 </p>
               )}
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* ── Infos pratiques ── */}
-      <section className="page-container pt-6 space-y-4">
-
-        <div className="bg-[#1e1e1e] border border-[#2a2a2a] p-4 space-y-4">
-          <div className="flex items-start gap-3">
-            <span className="text-lg">📅</span>
-            <div>
-              <p className="text-white font-semibold text-sm capitalize">
-                {formatSessionDateTime(session.dateStart, session.durationMin)}
-              </p>
-              <p className="text-[#555] text-xs mt-0.5">{session.durationMin} minutes</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <span className="text-lg">📍</span>
-            <p className="text-white font-semibold text-sm">{session.locationAddress}</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-lg">👥</span>
-            <SpotsCounter
-              sessionId={session.id}
-              initialSpotsTaken={session.spotsTaken}
-              maxSpots={session.maxSpots}
-            />
-          </div>
-        </div>
-
-        {/* Description */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="w-1 h-4 bg-[#FF7A00]" />
-            <span className="font-display-md text-xs text-[#FF7A00] tracking-[0.2em]">CE QUE TU VAS VIVRE</span>
-          </div>
-          <p className="text-[#888] leading-relaxed whitespace-pre-wrap text-sm">
-            {session.description}
-          </p>
-          <div className="bg-[#1e1e1e] border border-[#2a2a2a] px-4 py-3">
-            <p className="font-display-md text-xs text-[#555] tracking-widest mb-1">COMPÉTENCE TRAVAILLÉE</p>
-            <p className="text-white font-semibold text-sm">{session.skillFocus}</p>
-          </div>
-        </div>
-
-        {/* Cover image si présente */}
-        {session.coverImageUrl && (
-          <img
-            src={session.coverImageUrl}
-            alt={session.title}
-            className="w-full aspect-video object-cover"
-          />
-        )}
-
-        {/* Espace pour le sticky CTA */}
-        <div className="h-24" />
-      </section>
-
-      {/* ── Sticky CTA ── */}
-      <div className="sticky-bottom bg-[#1a1a1a]/95 backdrop-blur-sm border-t border-[#2a2a2a]">
-        <div className="flex items-center gap-4">
+          {/* Description */}
           <div>
-            <p className="font-display text-3xl text-[#FF7A00]">
-              {formatPrice(session.priceCents)}
+            <p className="font-display-md text-xs text-[#FF7A00] tracking-[0.2em] mb-3">L'EXPÉRIENCE</p>
+            <p className="text-[#aaa] leading-relaxed text-base whitespace-pre-wrap">
+              {session.description}
             </p>
-            <p className="text-[#555] text-xs">par personne</p>
           </div>
 
-          {isFull ? (
-            <span className="flex-1 text-center py-3 px-6 border border-[#FF7A00]/30 text-[#555] font-display text-sm tracking-widest cursor-not-allowed">
-              SESSION COMPLÈTE
-            </span>
-          ) : (
-            <Link
-              href={`/book/${session.id}`}
-              className={`flex-1 btn-passion text-center ${isUrgent ? "pulse-orange" : ""}`}
-            >
-              {isUrgent
-                ? `RÉSERVER — ${spotsLeft} PLACE${spotsLeft > 1 ? "S" : ""} ⚡`
-                : "RÉSERVER MA PLACE →"}
-            </Link>
+          {/* Compétence */}
+          {session.skillFocus && (
+            <div className="border-t border-[#1e1e1e] pt-6">
+              <p className="font-display-md text-xs text-[#444] tracking-[0.15em] mb-2">COMPÉTENCE TRAVAILLÉE</p>
+              <p className="text-white">{session.skillFocus}</p>
+            </div>
           )}
+
+          {/* Lieu */}
+          <div className="border-t border-[#1e1e1e] pt-6">
+            <p className="font-display-md text-xs text-[#444] tracking-[0.15em] mb-2">LIEU</p>
+            <p className="text-white">{session.locationAddress}</p>
+          </div>
+
+          {/* Retour */}
+          <div className="pt-4">
+            <Link href="/explore" className="font-display-md text-xs text-[#444] hover:text-[#FF7A00] transition-colors tracking-[0.15em]">
+              ← RETOUR AUX SESSIONS
+            </Link>
+          </div>
         </div>
-      </div>
+
+        {/* ── Colonne droite sticky — Bloc réservation ── */}
+        <div className="lg:sticky lg:top-20 h-fit">
+          <div className="bg-[#111] border border-[#1e1e1e] p-6 space-y-5">
+
+            <p className="font-display-md text-xs text-[#FF7A00] tracking-[0.2em]">RÉSERVER CETTE SESSION</p>
+
+            {/* Prix */}
+            <div>
+              <span className="font-display text-5xl text-[#FF7A00]">
+                {formatPrice(session.priceCents)}
+              </span>
+              <span className="text-[#555] text-sm ml-2">/ personne</span>
+            </div>
+
+            {/* Infos */}
+            <div className="space-y-3 border-t border-[#1e1e1e] pt-4">
+              <div className="flex items-center justify-between">
+                <span className="text-[#555] text-sm">Date</span>
+                <span className="text-white font-semibold text-sm text-right">
+                  {formatSessionDateTime(session.dateStart, session.durationMin)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[#555] text-sm">Durée</span>
+                <span className="text-white font-semibold text-sm">{session.durationMin} min</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-[#555] text-sm">Places restantes</span>
+                <SpotsCounter
+                  sessionId={session.id}
+                  initialSpotsTaken={session.spotsTaken}
+                  maxSpots={session.maxSpots}
+                />
+              </div>
+            </div>
+
+            {/* CTA */}
+            {isFull ? (
+              <span className="block w-full text-center py-4 border border-[#2a2a2a] text-[#555] font-display-md text-xs tracking-[0.2em] cursor-not-allowed">
+                SESSION COMPLÈTE
+              </span>
+            ) : (
+              <Link
+                href={`/book/${session.id}`}
+                className={`btn-passion w-full text-center text-sm py-4 ${isUrgent ? "pulse-orange" : ""}`}
+              >
+                {isUrgent
+                  ? `RÉSERVER — ${spotsLeft} PLACE${spotsLeft > 1 ? "S" : ""} ⚡`
+                  : "RÉSERVER →"}
+              </Link>
+            )}
+
+            <p className="text-[#444] text-xs text-center">Annulation gratuite jusqu'à 48 h avant.</p>
+          </div>
+        </div>
+
+      </section>
 
     </main>
   );

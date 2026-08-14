@@ -6,18 +6,22 @@ import { formatPrice } from "@/lib/utils/format-price";
 import { formatSessionDateTime } from "@/lib/utils/format-date";
 import { APP_URL } from "@/constants";
 import { CopyButton } from "@/components/ui/copy-button";
+import { StripeConnectButton } from "@/components/coach/stripe-connect-button";
 
 interface Props {
   params: { id: string };
+  searchParams: { created?: string };
 }
 
 export async function generateMetadata({ params }: Props) {
   return { title: `Session · Passion Spark` };
 }
 
-export default async function SessionDetailPage({ params }: Props) {
+export default async function SessionDetailPage({ params, searchParams }: Props) {
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
+
+  const justCreated = searchParams.created === "1";
 
   const user = await db.user.findUnique({
     where:   { clerkId: userId },
@@ -51,8 +55,35 @@ export default async function SessionDetailPage({ params }: Props) {
   const gross     = session.priceCents * session.spotsTaken;
   const net       = Math.round(gross * 0.70);
 
+  const stripeActive = user.coachProfile.stripeOnboardingStatus === "active";
+
   return (
     <div className="px-4 sm:px-6 py-8 space-y-8">
+
+      {/* ── Stripe activation banner ── */}
+      {!stripeActive && (
+        <div className={`border p-5 space-y-4 ${justCreated ? "border-[#FF7A00]/60 bg-[#FF7A00]/5" : "border-[#2a2a2a] bg-[#1e1e1e]"}`}>
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 shrink-0 border border-[#FF7A00]/40 flex items-center justify-center mt-0.5">
+              <span className="text-[#FF7A00] text-sm">💳</span>
+            </div>
+            <div>
+              <p className="font-display-md text-[10px] tracking-[0.2em] text-[#FF7A00] mb-1">
+                {justCreated ? "SESSION CRÉÉE — ACTIVE LES PAIEMENTS" : "PAIEMENTS NON ACTIVÉS"}
+              </p>
+              <p className="text-xs font-sans" style={{ color: "var(--color-muted)" }}>
+                {justCreated
+                  ? "Ta session est en ligne ! Active maintenant Stripe pour recevoir des paiements dès la première réservation."
+                  : "Les participants ne peuvent pas encore réserver. Active Stripe pour recevoir tes revenus."}
+              </p>
+            </div>
+          </div>
+          <StripeConnectButton
+            incomplete={user.coachProfile.stripeOnboardingStatus === "pending"}
+            label="ACTIVER STRIPE ET RECEVOIR VOS PAIEMENTS →"
+          />
+        </div>
+      )}
 
       {/* ── Back ── */}
       <Link href="/sessions" className="font-display-md text-xs text-[#555] hover:text-[#FF7A00] transition-colors">

@@ -13,18 +13,22 @@
   --color-scroll:   #ccc;
   /* Logo: in light mode keep it dark (no filter needed) */
   --logo-filter:    none;
+  /* Accent orange */
+  --color-accent:   #FF7A00;
 }
 
 .dark {
-  --color-bg:       #1a1a1a;
-  --color-bg-nav:   rgba(26, 26, 26, 0.95);
-  --color-bg-card:  #1e1e1e;
-  --color-border:   #2a2a2a;
+  --color-bg:       #0a0a0a;
+  --color-bg-nav:   rgba(10, 10, 10, 0.95);
+  --color-bg-card:  #1a1a1a;
+  --color-border:   #222222;
   --color-text:     #ffffff;
   --color-muted:    #888888;
   --color-scroll:   #333;
   /* Logo: in dark mode invert to white */
   --logo-filter:    brightness(0) invert(1);
+  /* Accent orange — aligné avec Manus "Atelier Minuit" */
+  --color-accent:   #FF7A00;
 }
 
 @layer base {

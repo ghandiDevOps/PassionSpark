@@ -6,72 +6,112 @@ import { SessionCard, type SessionCardData } from "./session-card";
 
 const PAGE_SIZE = 12;
 
+// Univers principaux — style Manus
+const UNIVERS_FILTERS = [
+  { key: "TOUS",     label: "TOUS",      emoji: null },
+  { key: "SPORTIF",  label: "🏃 SPORTIF", emoji: "🏃" },
+  { key: "CRÉATIF",  label: "🎨 CRÉATIF", emoji: "🎨" },
+];
+
 interface ExploreClientProps {
   sessions: SessionCardData[];
   categories: string[];
 }
 
 export function ExploreClient({ sessions, categories }: ExploreClientProps) {
-  const [activeFilter, setActiveFilter] = useState("Tous");
+  const [activeUnivers, setActiveUnivers] = useState("TOUS");
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [shown, setShown] = useState(PAGE_SIZE);
 
-  const filters = ["Tous", ...categories];
+  // Map domain values to univers
+  function getUnivers(s: SessionCardData) {
+    const d = s.domain?.toLowerCase() ?? "";
+    if (["sport", "wellness"].includes(d)) return "SPORTIF";
+    if (["music", "art", "cooking", "language", "business", "tech"].includes(d)) return "CRÉATIF";
+    // Fallback: check category
+    const c = s.category?.toLowerCase() ?? "";
+    if (["trail", "running", "yoga", "escalade", "natation", "basket", "tennis", "fitness"].some(k => c.includes(k))) return "SPORTIF";
+    return "CRÉATIF";
+  }
 
-  const filtered =
-    activeFilter === "Tous"
-      ? sessions
-      : sessions.filter(
-          (s) => s.category.toLowerCase() === activeFilter.toLowerCase(),
-        );
+  const filtered = sessions
+    .filter(s => activeUnivers === "TOUS" || getUnivers(s) === activeUnivers)
+    .filter(s => !activeCategory || s.category.toLowerCase() === activeCategory.toLowerCase());
 
   const visible  = filtered.slice(0, shown);
   const hasMore  = shown < filtered.length;
   const remaining = filtered.length - shown;
 
-  function handleFilter(f: string) {
-    setActiveFilter(f);
-    setShown(PAGE_SIZE); // reset pagination on filter change
+  function handleUnivers(u: string) {
+    setActiveUnivers(u);
+    setActiveCategory(null);
+    setShown(PAGE_SIZE);
   }
 
   return (
     <>
-      {/* ── Filtre catégories sticky ── */}
-      <div className="sticky top-14 z-30 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-3 mb-6 sm:mb-8 border-b border-[#2a2a2a] bg-[#1a1a1a]">
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide max-w-7xl">
-          {filters.map((filter) => (
+      {/* ── Filtres univers — style Manus "Atelier Minuit" ── */}
+      <div className="sticky top-14 z-30 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-4 mb-8 border-b border-[#1e1e1e] bg-[#0a0a0a]">
+        <div className="flex gap-1 overflow-x-auto scrollbar-hide max-w-7xl">
+          {UNIVERS_FILTERS.map((f) => (
             <button
-              key={filter}
-              onClick={() => handleFilter(filter)}
-              className={`shrink-0 font-display-md text-xs px-4 py-2 border transition-colors duration-200 whitespace-nowrap cursor-pointer ${
-                activeFilter === filter
-                  ? "bg-[#FF7A00] border-[#FF7A00] text-white"
-                  : "border-[#2a2a2a] text-[#555] hover:border-[#FF7A00] hover:text-[#FF7A00]"
+              key={f.key}
+              onClick={() => handleUnivers(f.key)}
+              className={`shrink-0 font-display-md text-xs px-5 py-2.5 transition-all duration-200 whitespace-nowrap cursor-pointer tracking-[0.15em] ${
+                activeUnivers === f.key
+                  ? "bg-[#FF7A00] text-white"
+                  : "border border-[#1e1e1e] text-[#444] hover:border-[#FF7A00]/40 hover:text-[#FF7A00]"
               }`}
             >
-              {filter.toUpperCase()}
+              {f.label}
             </button>
           ))}
+          {/* Séparateur + filtres catégorie secondaire */}
+          {categories.length > 0 && (
+            <>
+              <div className="w-px bg-[#1e1e1e] mx-2 self-stretch" />
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => {
+                    setActiveCategory(activeCategory === cat ? null : cat);
+                    setShown(PAGE_SIZE);
+                  }}
+                  className={`shrink-0 font-sans text-xs px-4 py-2.5 border transition-colors duration-200 whitespace-nowrap cursor-pointer ${
+                    activeCategory === cat
+                      ? "border-[#FF7A00]/60 text-[#FF7A00]"
+                      : "border-[#1e1e1e] text-[#333] hover:border-[#FF7A00]/30 hover:text-[#555]"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </>
+          )}
         </div>
       </div>
 
       {/* ── Compteur ── */}
-      <p className="text-[#555] text-sm font-sans mb-6">
+      <p className="text-[#444] text-sm font-sans mb-6">
         <span className="text-white font-semibold">{filtered.length}</span>{" "}
         session{filtered.length > 1 ? "s" : ""} disponible{filtered.length > 1 ? "s" : ""}
-        {activeFilter !== "Tous" && (
-          <span className="text-[#FF7A00]"> · {activeFilter}</span>
+        {activeUnivers !== "TOUS" && (
+          <span className="text-[#FF7A00]"> · {activeUnivers}</span>
+        )}
+        {activeCategory && (
+          <span className="text-[#FF7A00]"> · {activeCategory}</span>
         )}
       </p>
 
       {/* ── État vide ── */}
       {filtered.length === 0 && (
         <div className="text-center py-20">
-          <p className="font-display text-4xl text-[#2a2a2a] mb-3">AUCUNE SESSION</p>
-          <p className="text-[#555] text-sm font-sans mb-6">
-            Pas encore de sessions {activeFilter} disponibles.
+          <p className="font-display text-4xl text-[#1e1e1e] mb-3">AUCUNE SESSION</p>
+          <p className="text-[#444] text-sm font-sans mb-6">
+            Pas encore de sessions {activeUnivers !== "TOUS" ? activeUnivers.toLowerCase() : ""} disponibles.
           </p>
           <button
-            onClick={() => handleFilter("Tous")}
+            onClick={() => handleUnivers("TOUS")}
             className="font-display-md text-xs text-[#FF7A00] hover:text-white transition-colors"
           >
             VOIR TOUTES LES SESSIONS →
@@ -101,24 +141,24 @@ export function ExploreClient({ sessions, categories }: ExploreClientProps) {
         </div>
       )}
 
-      {/* ── Bannière coach ── */}
-      <div className="bg-[#1e1e1e] border border-[#2a2a2a] p-6 lg:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+      {/* ── Bannière coach — style Manus "POUR LES PASSEURS" ── */}
+      <div className="border border-[#1e1e1e] p-8 lg:p-12 flex flex-col sm:flex-row sm:items-center justify-between gap-6 mt-4">
         <div>
-          <span className="font-display-md text-xs text-[#FF7A00] tracking-[0.2em] block mb-2">
-            TU ES COACH ?
+          <span className="font-display-md text-xs text-[#FF7A00] tracking-[0.25em] block mb-3">
+            POUR LES PASSEURS
           </span>
-          <h3 className="font-display text-2xl sm:text-3xl text-white mb-1">
-            Transmets ce que tu aimes.
+          <h3 className="font-display text-3xl sm:text-4xl text-white leading-[0.9] mb-2">
+            Vous avez une passion.
           </h3>
-          <p className="text-[#555] text-sm font-sans">
-            Crée ta session en 5 minutes. 70% des revenus. Zéro frais d&apos;entrée.
+          <p className="text-[#444] text-sm font-sans max-w-sm">
+            Créez votre session en 5 minutes. 70% des revenus vous reviennent. Aucun frais d'entrée.
           </p>
         </div>
         <Link
-          href="/sign-up"
-          className="btn-passion flex items-center justify-center gap-2 whitespace-nowrap shrink-0 sm:px-8"
+          href="/devenir-coach"
+          className="btn-passion whitespace-nowrap shrink-0 sm:px-10 text-sm"
         >
-          CRÉER MA SESSION →
+          DEVENIR COACH →
         </Link>
       </div>
     </>

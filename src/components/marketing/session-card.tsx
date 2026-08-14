@@ -90,7 +90,7 @@ export function SessionCard({ s }: { s: SessionCardData }) {
   return (
     <Link
       href={`/s/${s.slug}`}
-      className="session-card bg-[#1e1e1e] border border-[#2a2a2a] overflow-hidden group block cursor-pointer hover:border-[#FF7A00]/50 transition-colors duration-200"
+      className="session-card bg-[#111] border border-[#1e1e1e] overflow-hidden group block cursor-pointer hover:border-[#FF7A00]/50 transition-colors duration-200"
     >
       {/* ── Image ── */}
       <div className="relative h-44 bg-[#111] overflow-hidden">
