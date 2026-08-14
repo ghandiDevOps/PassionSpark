@@ -59,8 +59,8 @@ export function ExploreClient({ sessions, categories }: ExploreClientProps) {
               onClick={() => handleUnivers(f.key)}
               className={`shrink-0 font-display-md text-xs px-5 py-2.5 transition-all duration-200 whitespace-nowrap cursor-pointer tracking-[0.15em] ${
                 activeUnivers === f.key
-                  ? "bg-[#FF7A00] text-white"
-                  : "border border-[#1e1e1e] text-[#444] hover:border-[#FF7A00]/40 hover:text-[#FF7A00]"
+                  ? "bg-[#FF7A00] text-black"
+                  : "bg-[#1a1a1a] text-white hover:text-[#FF7A00]"
               }`}
             >
               {f.label}
@@ -142,7 +142,7 @@ export function ExploreClient({ sessions, categories }: ExploreClientProps) {
       )}
 
       {/* ── Bannière coach — style Manus "POUR LES PASSEURS" ── */}
-      <div className="border border-[#1e1e1e] p-8 lg:p-12 flex flex-col sm:flex-row sm:items-center justify-between gap-6 mt-4">
+      <div className="bg-[#111] border border-[#1e1e1e] p-8 lg:p-12 flex flex-col sm:flex-row sm:items-center justify-between gap-6 mt-4">
         <div>
           <span className="font-display-md text-xs text-[#FF7A00] tracking-[0.25em] block mb-3">
             POUR LES PASSEURS
