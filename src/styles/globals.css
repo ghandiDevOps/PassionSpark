@@ -174,12 +174,7 @@
 
   /* ── Session card ────────────────────────────────────────────── */
   .session-card {
-    transition: transform 0.12s ease-out, box-shadow 0.12s ease-out;
-  }
-
-  .session-card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 40px rgba(232, 149, 63, 0.2);
+    transition: border-color 0.12s ease-out;
   }
 
   /* ── Badge sport ─────────────────────────────────────────────── */
@@ -189,8 +184,8 @@
     font-size: 0.65rem;
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    color: #fff;
-    background-color: rgba(232, 149, 63, 0.9);
+    color: #000;
+    background-color: #FF7A00;
     border-radius: 0;
     padding: 0.2rem 0.6rem;
   }
@@ -335,9 +330,5 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-  .session-card:hover {
-    transform: none !important;
-    box-shadow: none !important;
   }
 }
