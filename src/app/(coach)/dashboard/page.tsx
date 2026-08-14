@@ -6,6 +6,7 @@ import { formatPrice } from "@/lib/utils/format-price";
 import { formatSessionDateTime } from "@/lib/utils/format-date";
 import { StripeConnectButton } from "@/components/coach/stripe-connect-button";
 
+export const dynamic = "force-dynamic";
 export const metadata = { title: "Dashboard · Passion Spark" };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
